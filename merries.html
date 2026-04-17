@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KFPS Hengsten — Mijn Merries</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #002E54;
+      --navy-mid:   #003d6e;
+      --navy-dark:  #001a30;
+      --royal:      #0079BC;
+      --gold:       #A49466;
+      --gold-light: #C4B48A;
+      --gold-pale:  #e8dfc8;
+      --cream:      #F8F4EC;
+      --white:      #FFFFFF;
+      --radius:     4px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background: #001525;
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Grain texture */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem;
+      height: 64px;
+      background: rgba(0, 21, 37, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(164,148,102,0.15);
+    }
+
+    .nav-left { display: flex; align-items: center; gap: 2.5rem; }
+
+    .nav-logo img {
+      height: 36px;
+      filter: brightness(0) invert(1);
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+    .nav-logo img:hover { opacity: 0.7; }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 0.25rem; list-style: none;
+    }
+    .nav-links a {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 0.875rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.82rem; font-weight: 500; letter-spacing: 0.05em;
+      border-radius: var(--radius);
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-links a:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+    .nav-links a.active { background: rgba(164,148,102,0.12); color: var(--gold-light); }
+    .nav-links a svg { opacity: 0.7; }
+
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+
+    .nav-user-badge { display: flex; align-items: center; gap: 0.625rem; }
+    .nav-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, rgba(164,148,102,0.3), rgba(0,121,188,0.3));
+      border: 1px solid rgba(164,148,102,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.9rem; font-weight: 600; color: var(--gold-light);
+      text-transform: uppercase;
+    }
+    .nav-user-email {
+      font-size: 0.8rem; color: rgba(255,255,255,0.5);
+      max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .nav-logout-btn {
+      padding: 0.42rem 1rem;
+      background: transparent;
+      border: 1px solid rgba(164,148,102,0.25);
+      color: rgba(164,148,102,0.7);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      border-radius: var(--radius); cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .nav-logout-btn:hover { border-color: rgba(164,148,102,0.5); color: var(--gold-light); background: rgba(164,148,102,0.06); }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      margin-top: 64px;
+      flex: 1;
+      padding: 2.5rem 3rem 5rem;
+      max-width: 1320px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      margin-bottom: 2.25rem;
+    }
+
+    .page-header-left {}
+
+    .page-eyebrow {
+      display: flex; align-items: center; gap: 0.625rem;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 0.5rem;
+    }
+    .page-eyebrow::before {
+      content: ''; width: 28px; height: 1px; background: var(--gold);
+    }
+
+    .page-header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      font-weight: 300; line-height: 1.15; letter-spacing: -0.01em;
+    }
+    .page-header h1 em { font-style: italic; font-weight: 600; color: var(--gold-light); }
+
+    .page-header-sub {
+      font-size: 0.84rem; color: rgba(255,255,255,0.38);
+      margin-top: 0.5rem; line-height: 1.55;
+    }
+
+    /* Add mare button — prominent */
+    .btn-add-mare-primary {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      padding: 0.875rem 2rem;
+      background: var(--gold);
+      color: var(--navy);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      border: none; border-radius: var(--radius); cursor: pointer; text-decoration: none;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 20px rgba(164,148,102,0.3);
+      white-space: nowrap;
+    }
+    .btn-add-mare-primary:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(164,148,102,0.4);
+    }
+    .btn-add-mare-primary:active { transform: translateY(0); }
+
+    /* ── FILTER/SORT BAR ── */
+    .filter-bar {
+      display: flex; align-items: center; gap: 0.875rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-search {
+      position: relative; flex: 1; min-width: 220px; max-width: 360px;
+    }
+    .filter-search svg {
+      position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%);
+      color: rgba(255,255,255,0.3); pointer-events: none;
+    }
+    .filter-search input {
+      width: 100%;
+      padding: 0.65rem 1rem 0.65rem 2.5rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: var(--radius);
+      color: var(--white);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.84rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .filter-search input::placeholder { color: rgba(255,255,255,0.3); }
+    .filter-search input:focus {
+      border-color: rgba(164,148,102,0.35);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .filter-select {
+      padding: 0.65rem 2.25rem 0.65rem 0.875rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: var(--radius);
+      color: rgba(255,255,255,0.65);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.84rem;
+      outline: none; cursor: pointer;
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.3)' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      transition: border-color 0.2s, color 0.2s, background-color 0.2s;
+    }
+    .filter-select:focus, .filter-select:hover {
+      border-color: rgba(164,148,102,0.35);
+      color: var(--white);
+      background-color: rgba(255,255,255,0.06);
+    }
+    .filter-select option { background: #001a30; }
+
+    .filter-count {
+      margin-left: auto;
+      font-size: 0.77rem; color: rgba(255,255,255,0.3);
+      letter-spacing: 0.06em; white-space: nowrap;
+    }
+    .filter-count strong { color: rgba(255,255,255,0.55); font-weight: 600; }
+
+    /* ── MARE GRID ── */
+    .mare-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+
+    /* ── MARE CARD ── */
+    .mare-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex; flex-direction: column;
+      transition: border-color 0.22s, box-shadow 0.22s, transform 0.22s;
+      position: relative;
+    }
+    .mare-card:hover {
+      border-color: rgba(164,148,102,0.22);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      transform: translateY(-3px);
+    }
+
+    /* Card photo */
+    .mare-card-photo {
+      position: relative; overflow: hidden;
+      aspect-ratio: 4 / 3;
+      background: rgba(0,21,37,0.6);
+      flex-shrink: 0;
+    }
+    .mare-card-photo img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+      filter: brightness(0.85) saturate(0.8);
+    }
+    .mare-card:hover .mare-card-photo img { transform: scale(1.04); }
+
+    /* Gradient overlay op foto */
+    .mare-card-photo::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to bottom,
+        transparent 40%,
+        rgba(0, 21, 37, 0.55) 75%,
+        rgba(0, 21, 37, 0.85) 100%
+      );
+      pointer-events: none;
+    }
+
+    /* Predicaat badge op foto */
+    .mare-predicaat-badge {
+      position: absolute; top: 0.875rem; left: 0.875rem; z-index: 2;
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+      padding: 0.28rem 0.65rem;
+      border-radius: 100px;
+      backdrop-filter: blur(8px);
+    }
+    .mare-predicaat-badge.ster {
+      background: rgba(164,148,102,0.2); border: 1px solid rgba(164,148,102,0.35);
+      color: var(--gold-light);
+    }
+    .mare-predicaat-badge.kroon {
+      background: rgba(0,121,188,0.2); border: 1px solid rgba(0,121,188,0.35);
+      color: #7ec8f0;
+    }
+    .mare-predicaat-badge.model {
+      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+      color: rgba(255,255,255,0.8);
+    }
+    .mare-predicaat-badge.preferent {
+      background: rgba(184,118,0,0.2); border: 1px solid rgba(184,118,0,0.4);
+      color: #f0c060;
+    }
+
+    /* Score op foto rechts boven */
+    .mare-score-badge {
+      position: absolute; top: 0.875rem; right: 0.875rem; z-index: 2;
+      display: flex; flex-direction: column; align-items: center;
+      background: rgba(0,21,37,0.75);
+      border: 1px solid rgba(164,148,102,0.3);
+      border-radius: 6px;
+      padding: 0.35rem 0.6rem;
+      backdrop-filter: blur(8px);
+      line-height: 1;
+    }
+    .mare-score-badge-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-weight: 700; color: var(--gold-light);
+    }
+    .mare-score-badge-label {
+      font-size: 0.55rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.35); margin-top: 0.1rem;
+    }
+
+    /* Card body */
+    .mare-card-body {
+      padding: 1.25rem 1.375rem 1.375rem;
+      display: flex; flex-direction: column; gap: 0.75rem;
+      flex: 1;
+    }
+
+    .mare-card-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem; font-weight: 600; line-height: 1.2;
+      color: var(--white);
+    }
+
+    .mare-card-meta {
+      display: flex; flex-wrap: wrap; gap: 0.4rem 1rem;
+    }
+    .mare-meta-item {
+      display: flex; align-items: center; gap: 0.35rem;
+      font-size: 0.72rem; color: rgba(255,255,255,0.38);
+      letter-spacing: 0.04em;
+    }
+    .mare-meta-item svg { opacity: 0.55; flex-shrink: 0; }
+
+    /* Score bar */
+    .mare-match-row {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding-top: 0.375rem;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .mare-match-label {
+      font-size: 0.67rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(255,255,255,0.28); white-space: nowrap;
+    }
+    .mare-match-hengst {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.95rem; font-weight: 500;
+      color: rgba(255,255,255,0.6);
+      flex: 1; min-width: 0;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .mare-match-none {
+      font-size: 0.78rem; color: rgba(255,255,255,0.22); font-style: italic;
+    }
+
+    /* Card footer actions */
+    .mare-card-footer {
+      display: flex; gap: 0.625rem;
+      padding: 0 1.375rem 1.25rem;
+    }
+
+    .btn-mare-bekijk {
+      flex: 1;
+      padding: 0.55rem;
+      background: rgba(164,148,102,0.08);
+      border: 1px solid rgba(164,148,102,0.18);
+      color: rgba(164,148,102,0.8);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      border-radius: var(--radius); cursor: pointer; text-decoration: none; text-align: center;
+      display: flex; align-items: center; justify-content: center; gap: 0.35rem;
+      transition: background 0.18s, border-color 0.18s, color 0.18s;
+    }
+    .btn-mare-bekijk:visited { color: rgba(164,148,102,0.8); }
+    .btn-mare-bekijk:hover { background: rgba(164,148,102,0.14); border-color: rgba(164,148,102,0.35); color: var(--gold-light); }
+
+    .btn-mare-match {
+      flex: 1;
+      padding: 0.55rem;
+      background: rgba(0,121,188,0.1);
+      border: 1px solid rgba(0,121,188,0.2);
+      color: rgba(0,121,188,0.85);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      border-radius: var(--radius); cursor: pointer; text-decoration: none; text-align: center;
+      display: flex; align-items: center; justify-content: center; gap: 0.35rem;
+      transition: background 0.18s, border-color 0.18s, color 0.18s;
+    }
+    .btn-mare-match:visited { color: rgba(0,121,188,0.85); }
+    .btn-mare-match:hover { background: rgba(0,121,188,0.18); border-color: rgba(0,121,188,0.4); color: #7ec8f0; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      grid-column: 1 / -1;
+      display: flex; flex-direction: column; align-items: center; text-align: center;
+      padding: 5rem 2rem;
+      gap: 1.125rem;
+    }
+    .empty-icon-wrap {
+      width: 96px; height: 96px;
+      background: rgba(164,148,102,0.05);
+      border: 1px solid rgba(164,148,102,0.12);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(164,148,102,0.4);
+      margin-bottom: 0.25rem;
+    }
+    .empty-state h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem; font-weight: 300;
+    }
+    .empty-state h2 em { font-style: italic; font-weight: 600; color: var(--gold-light); }
+    .empty-state p {
+      font-size: 0.9rem; line-height: 1.7; color: rgba(255,255,255,0.35);
+      max-width: 380px;
+    }
+
+    /* Geen resultaten (na filteren) */
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+    .no-results p {
+      font-size: 0.9rem; color: rgba(255,255,255,0.3);
+    }
+    .no-results a {
+      color: var(--gold-light); cursor: pointer; background: none; border: none;
+      font-size: inherit; text-decoration: underline; text-underline-offset: 3px;
+    }
+
+    /* ── ADD MARE MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,10,20,0.75);
+      backdrop-filter: blur(6px);
+      display: none; align-items: center; justify-content: center;
+      padding: 1.5rem;
+    }
+    .modal-overlay.open { display: flex; }
+
+    .modal-panel {
+      background: #001e35;
+      border: 1px solid rgba(164,148,102,0.18);
+      border-radius: 10px;
+      padding: 2.5rem;
+      width: 100%; max-width: 520px;
+      position: relative;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+      animation: modalIn 0.25s cubic-bezier(0.34,1.4,0.64,1) forwards;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.94) translateY(12px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-close {
+      position: absolute; top: 1.25rem; right: 1.25rem;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.5);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s, color 0.15s;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.09); color: var(--white); }
+
+    .modal-eyebrow {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 0.5rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .modal-eyebrow::before { content: ''; width: 20px; height: 1px; background: var(--gold); }
+
+    .modal-panel h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.9rem; font-weight: 300; margin-bottom: 1.75rem; line-height: 1.2;
+    }
+    .modal-panel h2 em { font-style: italic; font-weight: 600; color: var(--gold-light); }
+
+    .form-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1rem 1.25rem;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 0.375rem; }
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-label {
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      color: rgba(255,255,255,0.4);
+    }
+
+    .form-input, .form-select-input {
+      padding: 0.7rem 0.875rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: var(--radius);
+      color: var(--white);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.875rem;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      width: 100%;
+    }
+    .form-input::placeholder { color: rgba(255,255,255,0.22); }
+    .form-input:focus, .form-select-input:focus {
+      border-color: rgba(164,148,102,0.4);
+      background: rgba(255,255,255,0.06);
+    }
+    .form-select-input {
+      appearance: none; -webkit-appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.3)' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 0.75rem center;
+      background-size: 10px;
+      padding-right: 2.25rem;
+    }
+    .form-select-input option { background: #001a30; }
+
+    .form-actions {
+      display: flex; gap: 0.75rem; margin-top: 1.75rem;
+    }
+
+    .btn-form-primary {
+      flex: 1;
+      padding: 0.8rem;
+      background: var(--gold); color: var(--navy);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      border: none; border-radius: var(--radius); cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 4px 16px rgba(164,148,102,0.25);
+    }
+    .btn-form-primary:hover { background: var(--gold-light); transform: translateY(-1px); }
+    .btn-form-primary:active { transform: translateY(0); }
+
+    .btn-form-cancel {
+      padding: 0.8rem 1.5rem;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.45);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.06em;
+      border-radius: var(--radius); cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .btn-form-cancel:hover { border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.7); }
+
+    /* ── LOADING SCREEN ── */
+    #loadingScreen {
+      position: fixed; inset: 0; z-index: 999;
+      background: #001525;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem;
+    }
+    #loadingScreen img { height: 40px; filter: brightness(0) invert(1); opacity: 0.7; }
+    .load-spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(164,148,102,0.15);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ANIMATIONS ── */
+    .fade-in {
+      opacity: 0; transform: translateY(16px);
+      animation: fadeUp 0.5s ease forwards;
+    }
+    .fade-in-1 { animation-delay: 0.05s; }
+    .fade-in-2 { animation-delay: 0.12s; }
+    .fade-in-3 { animation-delay: 0.2s; }
+
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    /* Card staggered reveal */
+    .mare-card { opacity: 0; animation: cardIn 0.45s ease forwards; }
+    @keyframes cardIn { to { opacity: 1; } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .mare-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 0 1.25rem; }
+      main { padding: 1.5rem 1.25rem 3rem; }
+      .page-header { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
+      .mare-grid { grid-template-columns: 1fr; }
+      .filter-bar { gap: 0.625rem; }
+      .filter-search { max-width: 100%; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading screen -->
+  <div id="loadingScreen">
+    <img src="brand_assets/kfps-logo.webp" alt="KFPS" />
+    <div class="load-spinner" id="loadSpinner"></div>
+    <p id="loadError" style="display:none;font-size:0.8rem;color:rgba(255,255,255,0.4);margin-top:0.5rem;">
+      Verbinding mislukt — <a href="index.html" style="color:var(--gold-light);">terug naar inloggen</a>
+    </p>
+  </div>
+
+  <!-- ── NAV ── -->
+  <nav>
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo">
+        <img src="brand_assets/kfps-logo.webp" alt="KFPS Hengsten" />
+      </a>
+      <ul class="nav-links">
+        <li>
+          <a href="dashboard.html">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+            Dashboard
+          </a>
+        </li>
+        <li>
+          <a href="merries.html" class="active">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M1 13c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Mijn Merries
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3.5H12l-2.5 2 1 3.5L7 8l-3.5 2 1-3.5L2 4.5h3.5L7 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+            Hengsten
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M8.5 8.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Match Zoeken
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <div class="nav-user-badge">
+        <div class="nav-avatar" id="navAvatar">?</div>
+        <span class="nav-user-email" id="navEmail">Laden…</span>
+      </div>
+      <button class="nav-logout-btn" id="logoutBtn">Uitloggen</button>
+    </div>
+  </nav>
+
+  <!-- ── MAIN ── -->
+  <main>
+
+    <!-- Page header -->
+    <div class="page-header fade-in fade-in-1">
+      <div class="page-header-left">
+        <div class="page-eyebrow">Fokprogramma</div>
+        <h1>Mijn <em>Merries</em></h1>
+        <p class="page-header-sub">Beheer uw fokmerries en bekijk hun beste matchscores.</p>
+      </div>
+      <button class="btn-add-mare-primary" id="openAddMare">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Merrie Toevoegen
+      </button>
+    </div>
+
+    <!-- Filter / sort bar -->
+    <div class="filter-bar fade-in fade-in-2" id="filterBar" style="display:none;">
+      <div class="filter-search">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+        <input type="text" id="searchInput" placeholder="Zoek op naam…" autocomplete="off" />
+      </div>
+      <select class="filter-select" id="filterPredicaat">
+        <option value="">Alle predicaten</option>
+        <option value="Ster">Ster</option>
+        <option value="Kroon">Kroon</option>
+        <option value="Model">Model</option>
+        <option value="Preferent">Preferent</option>
+      </select>
+      <select class="filter-select" id="sortBy">
+        <option value="naam">Naam A–Z</option>
+        <option value="naam-desc">Naam Z–A</option>
+        <option value="jaar">Geboortejaar (oud → nieuw)</option>
+        <option value="jaar-desc">Geboortejaar (nieuw → oud)</option>
+        <option value="score-desc">Beste score eerst</option>
+      </select>
+      <div class="filter-count" id="filterCount"></div>
+    </div>
+
+    <!-- Mare grid -->
+    <div class="mare-grid fade-in fade-in-3" id="mareGrid">
+      <!-- Gevuld via JS -->
+    </div>
+
+  </main>
+
+  <!-- ── ADD MARE MODAL ── -->
+  <div class="modal-overlay" id="addMareModal">
+    <div class="modal-panel">
+      <button class="modal-close" id="closeAddMare" aria-label="Sluiten">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+      <div class="modal-eyebrow">Nieuw toevoegen</div>
+      <h2>Merrie <em>Registreren</em></h2>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="form-label" for="fNaam">Naam</label>
+          <input class="form-input" id="fNaam" type="text" placeholder="Volledige naam van de merrie" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fJaar">Geboortejaar</label>
+          <input class="form-input" id="fJaar" type="number" placeholder="bijv. 2019" min="1980" max="2025" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fStamboek">Stamboeknummer</label>
+          <input class="form-input" id="fStamboek" type="text" placeholder="bijv. 12345" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fPredicaat">Predicaat</label>
+          <select class="form-select-input" id="fPredicaat">
+            <option value="">Selecteer predicaat</option>
+            <option value="Ster">Ster</option>
+            <option value="Kroon">Kroon</option>
+            <option value="Model">Model</option>
+            <option value="Preferent">Preferent</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="fKleur">Kleur / Bijzonderheden</label>
+          <input class="form-input" id="fKleur" type="text" placeholder="bijv. Zwart, blauw oog" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-form-cancel" id="cancelAddMare">Annuleren</button>
+        <button class="btn-form-primary" id="submitAddMare">Merrie Opslaan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    var SUPABASE_URL  = 'https://uiqnlivjhqcxvgjzugcn.supabase.co';
+    var SUPABASE_ANON = 'sb_publishable_qUthop3fXE2jhgvkt_YX9Q_nnFN-ZgU';
+    var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    // ── AUTH GUARD ──────────────────────────────────────────────────
+    sb.auth.getSession().then(function(result) {
+      var session = result.data.session;
+      if (session && session.user) {
+        initPage(session.user);
+      } else {
+        window.location.replace('index.html');
+      }
+    }).catch(function() {
+      window.location.replace('index.html');
+    });
+
+    sb.auth.onAuthStateChange(function(event) {
+      if (event === 'SIGNED_OUT') window.location.replace('index.html');
+    });
+
+    setTimeout(function() {
+      var ls = document.getElementById('loadingScreen');
+      if (ls && ls.style.display !== 'none') {
+        document.getElementById('loadSpinner').style.display = 'none';
+        document.getElementById('loadError').style.display = 'block';
+      }
+    }, 6000);
+
+    // ── UITLOGGEN ───────────────────────────────────────────────────
+    document.getElementById('logoutBtn').addEventListener('click', async function() {
+      await sb.auth.signOut();
+      window.location.replace('index.html');
+    });
+
+    // ── DEMO DATA ───────────────────────────────────────────────────
+    // Placeholder merries — vervangen door echte DB-data zodra beschikbaar
+    var demoMares = [
+      {
+        id: 1,
+        naam: "Wynona fan 't Hooge",
+        jaar: 2019,
+        stamboek: '518234',
+        predicaat: 'Model',
+        kleur: 'Zwart',
+        bestMatch: 'Tsjalling 502',
+        score: 8.6,
+        foto: 'https://placehold.co/480x360/001525/A49466?text=Wynona'
+      },
+      {
+        id: 2,
+        naam: 'Roza van Dijkstra',
+        jaar: 2021,
+        stamboek: '521890',
+        predicaat: 'Ster',
+        kleur: 'Zwart',
+        bestMatch: 'Rindert 496',
+        score: 9.0,
+        foto: 'https://placehold.co/480x360/001525/A49466?text=Roza'
+      },
+      {
+        id: 3,
+        naam: 'Elske van de Hoeve',
+        jaar: 2018,
+        stamboek: '509771',
+        predicaat: 'Kroon',
+        kleur: 'Zwart, witte bles',
+        bestMatch: 'Mintse 384',
+        score: 7.9,
+        foto: 'https://placehold.co/480x360/001525/A49466?text=Elske'
+      },
+      {
+        id: 4,
+        naam: 'Silke Jacobsdochter',
+        jaar: 2020,
+        stamboek: '516204',
+        predicaat: 'Ster',
+        kleur: 'Zwart',
+        bestMatch: null,
+        score: null,
+        foto: 'https://placehold.co/480x360/001525/A49466?text=Silke'
+      }
+    ];
+
+    // Actieve data (start met demo, later uit DB)
+    var allMares = [];
+
+    // ── PAGINA INITIALISEREN ────────────────────────────────────────
+    function initPage(user) {
+      document.getElementById('loadingScreen').style.display = 'none';
+
+      var emailName   = user.email.split('@')[0];
+      var displayName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+      document.getElementById('navAvatar').textContent = displayName.charAt(0).toUpperCase();
+      document.getElementById('navEmail').textContent  = user.email;
+
+      // Laad merries (nu demo, straks uit Supabase)
+      allMares = demoMares.slice();
+      renderMares();
+    }
+
+    // ── RENDER MERRIES ──────────────────────────────────────────────
+    function renderMares() {
+      var grid    = document.getElementById('mareGrid');
+      var filterBar = document.getElementById('filterBar');
+      var filtered = getFiltered();
+
+      // Toon filterbar alleen als er merries zijn
+      if (allMares.length > 0) {
+        filterBar.style.display = 'flex';
+      } else {
+        filterBar.style.display = 'none';
+      }
+
+      grid.innerHTML = '';
+
+      // Geen merries aanwezig
+      if (allMares.length === 0) {
+        grid.innerHTML = emptyStateHTML();
+        return;
+      }
+
+      // Merries aanwezig maar filter geeft niets
+      if (filtered.length === 0) {
+        grid.innerHTML = '<div class="no-results"><p>Geen merries gevonden. <a onclick="clearFilters()">Filters wissen</a></p></div>';
+        updateCount(0);
+        return;
+      }
+
+      updateCount(filtered.length);
+
+      filtered.forEach(function(mare, idx) {
+        var card = document.createElement('div');
+        card.className = 'mare-card';
+        card.style.animationDelay = (idx * 0.06) + 's';
+        card.innerHTML = mareCardHTML(mare);
+        grid.appendChild(card);
+      });
+    }
+
+    function emptyStateHTML() {
+      return '<div class="empty-state">' +
+        '<div class="empty-icon-wrap">' +
+          '<svg width="40" height="40" viewBox="0 0 40 40" fill="none">' +
+            '<circle cx="20" cy="14" r="7" stroke="currentColor" stroke-width="1.6"/>' +
+            '<path d="M4 36c0-8.837 7.163-13 16-13s16 4.163 16 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>' +
+            '<path d="M28 10h8M32 6v8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>' +
+          '</svg>' +
+        '</div>' +
+        '<h2>Nog geen <em>merries</em></h2>' +
+        '<p>Voeg uw eerste merrie toe om matchscores te berekenen en uw fokprogramma op te starten.</p>' +
+        '<button class="btn-add-mare-primary" onclick="openModal()" style="margin-top:0.5rem;">' +
+          '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
+          'Eerste Merrie Toevoegen' +
+        '</button>' +
+      '</div>';
+    }
+
+    function predicaatClass(predicaat) {
+      if (!predicaat) return '';
+      return predicaat.toLowerCase();
+    }
+
+    function mareCardHTML(mare) {
+      var badge = mare.predicaat
+        ? '<div class="mare-predicaat-badge ' + predicaatClass(mare.predicaat) + '">' + mare.predicaat + '</div>'
+        : '';
+
+      var scoreBadge = mare.score !== null
+        ? '<div class="mare-score-badge"><div class="mare-score-badge-value">' + mare.score.toFixed(1) + '</div><div class="mare-score-badge-label">Match</div></div>'
+        : '';
+
+      var matchRow = mare.bestMatch
+        ? '<div class="mare-match-row"><span class="mare-match-label">Beste match</span><span class="mare-match-hengst">' + mare.bestMatch + '</span></div>'
+        : '<div class="mare-match-row"><span class="mare-match-none">Nog geen match berekend</span></div>';
+
+      return (
+        '<div class="mare-card-photo">' +
+          '<img src="' + mare.foto + '" alt="' + mare.naam + '" loading="lazy" />' +
+          badge +
+          scoreBadge +
+        '</div>' +
+        '<div class="mare-card-body">' +
+          '<div class="mare-card-name">' + mare.naam + '</div>' +
+          '<div class="mare-card-meta">' +
+            '<div class="mare-meta-item">' +
+              '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="1" y="2" width="9" height="8" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M1 5h9M4 1v2M7 1v2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>' +
+              mare.jaar +
+            '</div>' +
+            '<div class="mare-meta-item">' +
+              '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="1" y="1" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M3 5.5h5M3 3.5h5M3 7.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>' +
+              mare.stamboek +
+            '</div>' +
+            (mare.kleur ? '<div class="mare-meta-item"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.1"/><circle cx="5.5" cy="5.5" r="1.5" fill="currentColor"/></svg>' + mare.kleur + '</div>' : '') +
+          '</div>' +
+          matchRow +
+        '</div>' +
+        '<div class="mare-card-footer">' +
+          '<a href="#" class="btn-mare-bekijk">' +
+            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 5.5h4M5.5 3.5l2 2-2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
+            'Bekijk' +
+          '</a>' +
+          '<a href="#" class="btn-mare-match">' +
+            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="4" cy="4" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M7 7l3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>' +
+            'Match Zoeken' +
+          '</a>' +
+        '</div>'
+      );
+    }
+
+    // ── FILTER & SORT ───────────────────────────────────────────────
+    function getFiltered() {
+      var query      = document.getElementById('searchInput').value.toLowerCase().trim();
+      var predicaat  = document.getElementById('filterPredicaat').value;
+      var sort       = document.getElementById('sortBy').value;
+
+      var result = allMares.filter(function(m) {
+        var matchNaam = !query || m.naam.toLowerCase().includes(query);
+        var matchPred = !predicaat || m.predicaat === predicaat;
+        return matchNaam && matchPred;
+      });
+
+      result.sort(function(a, b) {
+        if (sort === 'naam')       return a.naam.localeCompare(b.naam, 'nl');
+        if (sort === 'naam-desc')  return b.naam.localeCompare(a.naam, 'nl');
+        if (sort === 'jaar')       return a.jaar - b.jaar;
+        if (sort === 'jaar-desc')  return b.jaar - a.jaar;
+        if (sort === 'score-desc') return (b.score || 0) - (a.score || 0);
+        return 0;
+      });
+
+      return result;
+    }
+
+    function updateCount(n) {
+      var el = document.getElementById('filterCount');
+      el.innerHTML = '<strong>' + n + '</strong> van ' + allMares.length + ' merr' + (allMares.length === 1 ? 'ie' : 'ies');
+    }
+
+    function clearFilters() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('filterPredicaat').value = '';
+      document.getElementById('sortBy').value = 'naam';
+      renderMares();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', renderMares);
+    document.getElementById('filterPredicaat').addEventListener('change', renderMares);
+    document.getElementById('sortBy').addEventListener('change', renderMares);
+
+    // ── MODAL ───────────────────────────────────────────────────────
+    function openModal() {
+      document.getElementById('addMareModal').classList.add('open');
+      document.getElementById('fNaam').focus();
+    }
+    function closeModal() {
+      document.getElementById('addMareModal').classList.remove('open');
+    }
+
+    document.getElementById('openAddMare').addEventListener('click', openModal);
+    document.getElementById('closeAddMare').addEventListener('click', closeModal);
+    document.getElementById('cancelAddMare').addEventListener('click', closeModal);
+
+    // Sluiten bij klik buiten panel
+    document.getElementById('addMareModal').addEventListener('click', function(e) {
+      if (e.target === this) closeModal();
+    });
+
+    // Opslaan (placeholder — later naar Supabase)
+    document.getElementById('submitAddMare').addEventListener('click', function() {
+      var naam      = document.getElementById('fNaam').value.trim();
+      var jaar      = parseInt(document.getElementById('fJaar').value, 10);
+      var stamboek  = document.getElementById('fStamboek').value.trim();
+      var predicaat = document.getElementById('fPredicaat').value;
+      var kleur     = document.getElementById('fKleur').value.trim();
+
+      if (!naam) {
+        document.getElementById('fNaam').focus();
+        document.getElementById('fNaam').style.borderColor = 'rgba(220,80,80,0.5)';
+        return;
+      }
+
+      // Voeg toe aan lokale lijst (tijdelijk, voor UI-test)
+      var newMare = {
+        id: Date.now(),
+        naam: naam,
+        jaar: jaar || new Date().getFullYear(),
+        stamboek: stamboek || '—',
+        predicaat: predicaat || null,
+        kleur: kleur || null,
+        bestMatch: null,
+        score: null,
+        foto: 'https://placehold.co/480x360/001525/A49466?text=' + encodeURIComponent(naam.split(' ')[0])
+      };
+
+      allMares.unshift(newMare);
+      closeModal();
+
+      // Reset formulier
+      ['fNaam','fJaar','fStamboek','fKleur'].forEach(function(id) {
+        document.getElementById(id).value = '';
+        document.getElementById(id).style.borderColor = '';
+      });
+      document.getElementById('fPredicaat').value = '';
+
+      renderMares();
+    });
+
+    // Enter in naam field → focus jaar
+    document.getElementById('fNaam').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') document.getElementById('fJaar').focus();
+    });
+  </script>
+</body>
+</html>
