@@ -2280,10 +2280,11 @@
           const password = document.getElementById('loginPassword').value;
           if (!email || !password) { showFeedback('loginFeedback','error','Vul uw e-mailadres en wachtwoord in.'); return; }
           setLoading(this, true);
+          window._manualLogin = true;
           const { error } = await sb.auth.signInWithPassword({ email, password });
           setLoading(this, false);
-          if (error) showFeedback('loginFeedback','error', vertaalFout(error.message));
-          else closeAuthModal();
+          if (error) { window._manualLogin = false; showFeedback('loginFeedback','error', vertaalFout(error.message)); }
+          else window.location.href = 'dashboard.html';
         });
 
         // Magic link
@@ -2350,18 +2351,14 @@
           }, 400);
         });
 
-        // Auth state — nav aanpassen
-        sb.auth.onAuthStateChange(function(_event, session) {
-          if (session && session.user) {
-            navAuthItem.innerHTML =
-              '<div class="nav-user">' +
-                '<span class="nav-user-email">' + session.user.email + '</span>' +
-                '<button class="nav-logout" id="logoutBtn">Uitloggen</button>' +
-              '</div>';
-            document.getElementById('logoutBtn').addEventListener('click', () => sb.auth.signOut());
-          } else {
-            navAuthItem.innerHTML = '<a href="#" class="nav-cta" id="nav-aan-de-slag">Aan de Slag</a>';
-            bindAanDeSlag();
+        // Magic link: na klik op link in e-mail wordt SIGNED_IN event gevuurd
+        sb.auth.onAuthStateChange(function(event, session) {
+          if (event === 'SIGNED_IN' && session && session.user) {
+            // Alleen doorsturen als we niet al op het inlogformulier bezig zijn
+            // (voorkomt redirect bij gewone wachtwoord-login die al zelf redirect)
+            if (!window._manualLogin) {
+              window.location.href = 'dashboard.html';
+            }
           }
         });
 

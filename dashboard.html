@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KFPS Hengsten — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #002E54;
+      --navy-mid:   #003d6e;
+      --navy-dark:  #001a30;
+      --royal:      #0079BC;
+      --gold:       #A49466;
+      --gold-light: #C4B48A;
+      --gold-pale:  #e8dfc8;
+      --cream:      #F8F4EC;
+      --white:      #FFFFFF;
+      --radius:     4px;
+      --sidebar-w:  240px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background: #001525;
+      color: var(--white);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Grain texture */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem;
+      height: 64px;
+      background: rgba(0, 21, 37, 0.96);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(164,148,102,0.15);
+    }
+
+    .nav-left { display: flex; align-items: center; gap: 2.5rem; }
+
+    .nav-logo img {
+      height: 36px;
+      filter: brightness(0) invert(1);
+      opacity: 0.9;
+      transition: opacity 0.2s;
+    }
+    .nav-logo img:hover { opacity: 0.7; }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 0.25rem; list-style: none;
+    }
+    .nav-links a {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 0.875rem;
+      color: rgba(255,255,255,0.55);
+      text-decoration: none;
+      font-size: 0.82rem; font-weight: 500; letter-spacing: 0.05em;
+      border-radius: var(--radius);
+      transition: background 0.15s, color 0.15s;
+    }
+    .nav-links a:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+    .nav-links a.active { background: rgba(164,148,102,0.12); color: var(--gold-light); }
+    .nav-links a svg { opacity: 0.7; }
+
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+
+    .nav-user-badge {
+      display: flex; align-items: center; gap: 0.625rem;
+    }
+    .nav-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, rgba(164,148,102,0.3), rgba(0,121,188,0.3));
+      border: 1px solid rgba(164,148,102,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.9rem; font-weight: 600; color: var(--gold-light);
+      text-transform: uppercase;
+    }
+    .nav-user-email {
+      font-size: 0.8rem; color: rgba(255,255,255,0.5);
+      max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .nav-logout-btn {
+      padding: 0.42rem 1rem;
+      background: transparent;
+      border: 1px solid rgba(164,148,102,0.25);
+      color: rgba(164,148,102,0.7);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      border-radius: var(--radius); cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .nav-logout-btn:hover { border-color: rgba(164,148,102,0.5); color: var(--gold-light); background: rgba(164,148,102,0.06); }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      margin-top: 64px;
+      flex: 1;
+      padding: 2.5rem 3rem 4rem;
+      max-width: 1320px;
+      width: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── GREETING HEADER ── */
+    .dash-header {
+      margin-bottom: 2.25rem;
+      display: flex; align-items: flex-end; justify-content: space-between;
+    }
+
+    .dash-greeting-label {
+      display: flex; align-items: center; gap: 0.625rem;
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 0.5rem;
+    }
+    .dash-greeting-label::before {
+      content: ''; width: 28px; height: 1px; background: var(--gold);
+    }
+
+    .dash-header h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      font-weight: 300; line-height: 1.15; letter-spacing: -0.01em;
+    }
+    .dash-header h1 em { font-style: italic; font-weight: 600; color: var(--gold-light); }
+
+    .dash-date {
+      font-size: 0.8rem; color: rgba(255,255,255,0.35);
+      letter-spacing: 0.06em; padding-bottom: 0.2rem;
+    }
+
+    /* ── STATS BAND ── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(164,148,102,0.1);
+      border: 1px solid rgba(164,148,102,0.12);
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.03);
+      padding: 1.5rem 1.75rem;
+      display: flex; flex-direction: column; gap: 0.3rem;
+      transition: background 0.2s;
+    }
+    .stat-card:hover { background: rgba(255,255,255,0.055); }
+
+    .stat-card-label {
+      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase;
+      color: rgba(255,255,255,0.38);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .stat-card-label svg { opacity: 0.6; }
+
+    .stat-card-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.4rem; font-weight: 600; line-height: 1;
+      letter-spacing: -0.02em; color: var(--gold-light);
+    }
+
+    .stat-card-sub {
+      font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-top: 0.1rem;
+    }
+
+    /* ── TWO-COLUMN LAYOUT ── */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    /* ── SECTION HEADERS ── */
+    .section-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.25rem;
+    }
+    .section-head h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem; font-weight: 500; letter-spacing: -0.01em;
+    }
+    .section-head h2 em { font-style: italic; color: var(--gold-light); }
+
+    .section-link {
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(164,148,102,0.7); text-decoration: none;
+      display: flex; align-items: center; gap: 0.4rem;
+      transition: color 0.2s;
+    }
+    .section-link:hover { color: var(--gold-light); }
+
+    /* ── QUICK ACTIONS ── */
+    .quick-actions {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1rem; margin-bottom: 1.75rem;
+    }
+
+    .action-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 6px;
+      padding: 1.5rem 1.5rem 1.375rem;
+      cursor: pointer; text-decoration: none;
+      color: var(--white);
+      display: flex; flex-direction: column; gap: 0.875rem;
+      transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .action-card:visited { color: var(--white); }
+    .action-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--gold); opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .action-card:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(164,148,102,0.25);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+    }
+    .action-card:hover::before { opacity: 1; }
+    .action-card:active { transform: translateY(0); }
+
+    .action-icon {
+      width: 44px; height: 44px;
+      background: rgba(164,148,102,0.1);
+      border: 1px solid rgba(164,148,102,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold-light);
+    }
+
+    .action-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem; font-weight: 500;
+    }
+    .action-card p {
+      font-size: 0.8rem; line-height: 1.55; color: rgba(255,255,255,0.42); margin-top: 0.25rem;
+    }
+
+    .action-arrow {
+      display: flex; align-items: center; gap: 0.35rem;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: rgba(164,148,102,0.6); margin-top: auto;
+      transition: color 0.2s, gap 0.2s;
+    }
+    .action-card:hover .action-arrow { color: var(--gold-light); gap: 0.55rem; }
+
+    /* ── MARES PANEL ── */
+    .panel {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem; font-weight: 500;
+    }
+    .panel-header h2 em { font-style: italic; color: var(--gold-light); }
+
+    /* Merrie tabel */
+    .mare-table { width: 100%; border-collapse: collapse; }
+    .mare-table th {
+      padding: 0.75rem 1.5rem;
+      text-align: left;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(0,0,0,0.1);
+    }
+    .mare-table td {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 0.875rem;
+      vertical-align: middle;
+    }
+    .mare-table tr:last-child td { border-bottom: none; }
+    .mare-table tr { transition: background 0.15s; }
+    .mare-table tr:hover td { background: rgba(255,255,255,0.03); }
+
+    .mare-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem; font-weight: 600;
+      color: var(--white);
+    }
+    .mare-meta { font-size: 0.72rem; color: rgba(255,255,255,0.38); margin-top: 0.1rem; letter-spacing: 0.04em; }
+
+    .match-score {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .score-pill {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--gold-light);
+      background: rgba(164,148,102,0.1);
+      border: 1px solid rgba(164,148,102,0.2);
+      border-radius: 100px;
+      padding: 0.2rem 0.75rem;
+      line-height: 1;
+    }
+    .score-mini-bar {
+      width: 60px; height: 4px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px; overflow: hidden;
+    }
+    .score-mini-fill {
+      height: 100%; border-radius: 2px;
+      background: linear-gradient(90deg, var(--royal), var(--gold));
+    }
+
+    .mare-action-btn {
+      padding: 0.35rem 0.875rem;
+      background: transparent;
+      border: 1px solid rgba(164,148,102,0.2);
+      color: rgba(164,148,102,0.7);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+      border-radius: var(--radius); cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .mare-action-btn:hover { border-color: rgba(164,148,102,0.5); color: var(--gold-light); background: rgba(164,148,102,0.06); }
+
+    /* Empty state */
+    .empty-state {
+      padding: 3.5rem 2rem;
+      display: flex; flex-direction: column; align-items: center; text-align: center; gap: 1rem;
+    }
+    .empty-icon {
+      width: 72px; height: 72px;
+      background: rgba(164,148,102,0.07);
+      border: 1px solid rgba(164,148,102,0.15);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(164,148,102,0.5);
+      margin-bottom: 0.5rem;
+    }
+    .empty-state h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 400;
+    }
+    .empty-state h3 em { font-style: italic; color: var(--gold-light); }
+    .empty-state p { font-size: 0.84rem; color: rgba(255,255,255,0.38); line-height: 1.65; max-width: 280px; }
+
+    .btn-add-mare {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.75rem 1.75rem;
+      background: var(--gold); color: var(--navy);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+      border: none; border-radius: var(--radius); cursor: pointer; text-decoration: none;
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px rgba(164,148,102,0.25);
+      margin-top: 0.5rem;
+    }
+    .btn-add-mare:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(164,148,102,0.35); }
+    .btn-add-mare:active { transform: translateY(0); }
+
+    /* ── SIDEBAR RIGHT ── */
+    .sidebar { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    /* Nieuws panel */
+    .news-item {
+      padding: 1.125rem 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex; flex-direction: column; gap: 0.4rem;
+      transition: background 0.15s;
+      cursor: default;
+    }
+    .news-item:last-child { border-bottom: none; }
+    .news-item:hover { background: rgba(255,255,255,0.03); }
+
+    .news-tag {
+      display: inline-flex; align-items: center; gap: 0.35rem;
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 0.1rem;
+    }
+    .news-tag-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); }
+    .news-tag.royal { color: var(--royal); }
+    .news-tag.royal .news-tag-dot { background: var(--royal); }
+
+    .news-item h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem; font-weight: 500; line-height: 1.3;
+      color: rgba(255,255,255,0.88);
+    }
+    .news-item p { font-size: 0.78rem; line-height: 1.55; color: rgba(255,255,255,0.38); }
+    .news-date { font-size: 0.68rem; color: rgba(255,255,255,0.25); letter-spacing: 0.04em; margin-top: 0.15rem; }
+
+    /* Tip panel */
+    .tip-panel {
+      background: linear-gradient(135deg, rgba(0,61,110,0.5) 0%, rgba(0,46,84,0.7) 100%);
+      border: 1px solid rgba(0,121,188,0.2);
+      border-radius: 6px;
+      padding: 1.5rem;
+      position: relative; overflow: hidden;
+    }
+    .tip-panel::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--royal), transparent);
+    }
+    .tip-label {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(0,121,188,0.8); margin-bottom: 0.625rem;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .tip-panel h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.05rem; font-weight: 500; margin-bottom: 0.5rem;
+    }
+    .tip-panel p { font-size: 0.79rem; line-height: 1.6; color: rgba(255,255,255,0.45); }
+
+    /* ── LOADING SCREEN ── */
+    #loadingScreen {
+      position: fixed; inset: 0; z-index: 999;
+      background: #001525;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem;
+    }
+    #loadingScreen img { height: 40px; filter: brightness(0) invert(1); opacity: 0.7; }
+    .load-spinner {
+      width: 20px; height: 20px;
+      border: 2px solid rgba(164,148,102,0.15);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ANIMATIONS ── */
+    .fade-in {
+      opacity: 0; transform: translateY(16px);
+      animation: fadeUp 0.5s ease forwards;
+    }
+    .fade-in-1 { animation-delay: 0.05s; }
+    .fade-in-2 { animation-delay: 0.12s; }
+    .fade-in-3 { animation-delay: 0.2s; }
+    .fade-in-4 { animation-delay: 0.28s; }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .dash-grid { grid-template-columns: 1fr; }
+      .sidebar { flex-direction: row; flex-wrap: wrap; }
+      .sidebar .panel, .sidebar .tip-panel { flex: 1; min-width: 280px; }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 0 1.25rem; }
+      main { padding: 1.5rem 1.25rem 3rem; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .quick-actions { grid-template-columns: 1fr; }
+      .dash-header { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading screen (zichtbaar totdat Supabase auth gecontroleerd is) -->
+  <div id="loadingScreen">
+    <img src="brand_assets/kfps-logo.webp" alt="KFPS" />
+    <div class="load-spinner" id="loadSpinner"></div>
+    <p id="loadError" style="display:none;font-size:0.8rem;color:rgba(255,255,255,0.4);margin-top:0.5rem;">
+      Verbinding mislukt — <a href="index.html" style="color:var(--gold-light);">terug naar inloggen</a>
+    </p>
+  </div>
+
+  <!-- ── NAV ── -->
+  <nav>
+    <div class="nav-left">
+      <a href="index.html" class="nav-logo">
+        <img src="brand_assets/kfps-logo.webp" alt="KFPS Hengsten" />
+      </a>
+      <ul class="nav-links">
+        <li>
+          <a href="dashboard.html" class="active">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+            Dashboard
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M1 13c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Mijn Merries
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3.5H12l-2.5 2 1 3.5L7 8l-3.5 2 1-3.5L2 4.5h3.5L7 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+            Hengsten
+          </a>
+        </li>
+        <li>
+          <a href="#">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M8.5 8.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Match Zoeken
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <div class="nav-user-badge">
+        <div class="nav-avatar" id="navAvatar">?</div>
+        <span class="nav-user-email" id="navEmail">Laden…</span>
+      </div>
+      <button class="nav-logout-btn" id="logoutBtn">Uitloggen</button>
+    </div>
+  </nav>
+
+  <!-- ── MAIN CONTENT ── -->
+  <main>
+
+    <!-- Greeting header -->
+    <div class="dash-header fade-in fade-in-1">
+      <div>
+        <div class="dash-greeting-label">Fokprogramma Overzicht</div>
+        <h1 id="greeting">Welkom terug, <em>fokker</em></h1>
+      </div>
+      <span class="dash-date" id="dashDate"></span>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row fade-in fade-in-2">
+      <div class="stat-card">
+        <div class="stat-card-label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="4.5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M1 12c0-2.76 2.46-4.5 5.5-4.5S12 9.24 12 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Mijn Merries
+        </div>
+        <div class="stat-card-value" id="statMares">0</div>
+        <div class="stat-card-sub">Toegevoegd aan uw profiel</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M6.5 1l1.3 3.5H11l-2.6 2 1 3.5L6.5 8 3.6 10l1-3.5L2 4.5h3.2L6.5 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
+          Opgeslagen Matches
+        </div>
+        <div class="stat-card-value" id="statMatches">0</div>
+        <div class="stat-card-sub">Hengst-merrie combinaties</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M4 6.5h5M4 4.5h5M4 8.5h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Beschikbare Hengsten
+        </div>
+        <div class="stat-card-value">48</div>
+        <div class="stat-card-sub">KFPS-goedgekeurd 2025</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-label">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><circle cx="6.5" cy="6.5" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M6.5 4v2.5l1.5 1.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Data Bijgewerkt
+        </div>
+        <div class="stat-card-value" style="font-size:1.5rem; padding-top:0.3rem;">Apr '25</div>
+        <div class="stat-card-sub">KFPS keuringsseizoen 2025</div>
+      </div>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="section-head fade-in fade-in-2">
+      <h2>Snelle <em>Acties</em></h2>
+    </div>
+    <div class="quick-actions fade-in fade-in-3">
+      <a href="#" class="action-card">
+        <div class="action-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M2 18c0-4 3.58-6.5 8-6.5s8 2.5 8 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M14 4h4M16 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <h3>Merrie Toevoegen</h3>
+          <p>Voeg een merrie toe aan uw fokprogramma en sla haar gegevens op.</p>
+        </div>
+        <div class="action-arrow">
+          Toevoegen
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </a>
+      <a href="#" class="action-card">
+        <div class="action-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M13 13l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <h3>Match Zoeken</h3>
+          <p>Vind de beste hengst voor uw merrie op basis van scores en criteria.</p>
+        </div>
+        <div class="action-arrow">
+          Zoeken
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </a>
+      <a href="index.html#hengsten" class="action-card">
+        <div class="action-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2l2 5h5l-4 3 1.5 5L10 12l-4.5 3L7 10 3 7h5L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <h3>Bekijk Hengsten</h3>
+          <p>Blader door alle KFPS-goedgekeurde hengsten en hun scores.</p>
+        </div>
+        <div class="action-arrow">
+          Bekijken
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </a>
+    </div>
+
+    <!-- Twee kolommen: merries + sidebar -->
+    <div class="dash-grid fade-in fade-in-4">
+
+      <!-- Merries panel -->
+      <div>
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Mijn <em>Merries</em></h2>
+            <a href="#" class="section-link">
+              Alle merries
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6h8M6 2l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+
+          <!-- Lege staat — zichtbaar als geen merries -->
+          <div class="empty-state" id="maresEmpty">
+            <div class="empty-icon">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 26c0-6.075 4.925-10 11-10s11 3.925 11 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M20 7h5M22.5 4.5v5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <h3>Nog geen <em>merries</em></h3>
+            <p>Voeg uw eerste merrie toe om matches te kunnen zoeken en uw fokprogramma op te bouwen.</p>
+            <a href="#" class="btn-add-mare">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              Eerste Merrie Toevoegen
+            </a>
+          </div>
+
+          <!-- Tabel — zichtbaar als er wel merries zijn -->
+          <table class="mare-table" id="maresTable" style="display:none">
+            <thead>
+              <tr>
+                <th>Merrie</th>
+                <th>Beste Match</th>
+                <th>Score</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="maresTbody">
+              <!-- Gevuld via JS met placeholder data -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+
+        <!-- Nieuws panel -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Nieuws & <em>Updates</em></h2>
+          </div>
+          <div class="news-item">
+            <div class="news-tag"><div class="news-tag-dot"></div>Nieuw</div>
+            <h4>3 Nieuwe hengsten toegevoegd voor 2025</h4>
+            <p>Noarder 518, Wylster 520 en Beart 516 zijn toegevoegd aan het KFPS-register.</p>
+            <div class="news-date">14 april 2025</div>
+          </div>
+          <div class="news-item">
+            <div class="news-tag royal"><div class="news-tag-dot"></div>Update</div>
+            <h4>KFPS Keuringsscores 2025 verwerkt</h4>
+            <p>De officiële scores van het keuringsseizoen 2025 zijn bijgewerkt in de database.</p>
+            <div class="news-date">2 april 2025</div>
+          </div>
+          <div class="news-item">
+            <div class="news-tag"><div class="news-tag-dot"></div>Platform</div>
+            <h4>Match-algoritme verbeterd</h4>
+            <p>Het matching systeem houdt nu ook rekening met genetische diversiteit in de stamboom.</p>
+            <div class="news-date">28 maart 2025</div>
+          </div>
+        </div>
+
+        <!-- Tip -->
+        <div class="tip-panel">
+          <div class="tip-label">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.2"/><path d="M6 5.5v3M6 3.5v.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+            Tip
+          </div>
+          <h4>Begin met uw fokprofiel</h4>
+          <p>Voeg uw merries toe met hun sterke punten zodat het platform gerichte aanbevelingen kan doen voor het beste fokresultaat.</p>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    const SUPABASE_URL  = 'https://uiqnlivjhqcxvgjzugcn.supabase.co';
+    const SUPABASE_ANON = 'sb_publishable_qUthop3fXE2jhgvkt_YX9Q_nnFN-ZgU';
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+    // ── AUTH GUARD ─────────────────────────────────────────────────
+    // getSession() leest direct uit localStorage — simpelst en meest betrouwbaar.
+    // onAuthStateChange gebruiken we ALLEEN voor expliciete uitlog.
+    sb.auth.getSession().then(function(result) {
+      var session = result.data.session;
+      if (session && session.user) {
+        initDashboard(session.user);
+      } else {
+        window.location.replace('index.html');
+      }
+    }).catch(function() {
+      window.location.replace('index.html');
+    });
+
+    // Alleen reageren op expliciete uitlog
+    sb.auth.onAuthStateChange(function(event) {
+      if (event === 'SIGNED_OUT') {
+        window.location.replace('index.html');
+      }
+    });
+
+    // Fallback: als na 6s het laadscherm nog zichtbaar is, toon foutmelding
+    setTimeout(function() {
+      var ls = document.getElementById('loadingScreen');
+      if (ls && ls.style.display !== 'none') {
+        document.getElementById('loadSpinner').style.display = 'none';
+        document.getElementById('loadError').style.display = 'block';
+      }
+    }, 6000);
+
+    // ── UITLOGGEN ──────────────────────────────────────────────────
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      window.location.replace('index.html');
+    });
+
+    // ── DASHBOARD INITIALISEREN ────────────────────────────────────
+    function initDashboard(user) {
+      // Verberg loading screen
+      document.getElementById('loadingScreen').style.display = 'none';
+
+      // Naam uit e-mail (voor de @)
+      const emailName = user.email.split('@')[0];
+      const displayName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
+
+      // Avatar initiaal
+      document.getElementById('navAvatar').textContent = displayName.charAt(0).toUpperCase();
+      document.getElementById('navEmail').textContent  = user.email;
+
+      // Begroeting op basis van tijdstip
+      const hour = new Date().getHours();
+      const greeting = hour < 12 ? 'Goedemorgen' : hour < 18 ? 'Goedemiddag' : 'Goedenavond';
+      document.getElementById('greeting').innerHTML =
+        greeting + ', <em>' + displayName + '</em>';
+
+      // Datum
+      const now = new Date();
+      const dagNamen = ['Zondag','Maandag','Dinsdag','Woensdag','Donderdag','Vrijdag','Zaterdag'];
+      const maandNamen = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+      document.getElementById('dashDate').textContent =
+        dagNamen[now.getDay()] + ' ' + now.getDate() + ' ' + maandNamen[now.getMonth()] + ' ' + now.getFullYear();
+
+      // Placeholder stats (later via DB)
+      document.getElementById('statMares').textContent   = '0';
+      document.getElementById('statMatches').textContent = '0';
+
+      // Merries — placeholder lege staat
+      // Zodra DB-integratie er is, hier echte data laden
+      // Tijdelijk: toon demo-rij als voorbeeld (verwijder voor productie)
+      // showDemoMares();
+    }
+
+    // Demo-functie (uitgecommentarieerd — activeer om UI te testen)
+    function showDemoMares() {
+      const demoMares = [
+        { name: "Wynona fan 't Hooge", year: 2019, predicaat: 'Ster', bestMatch: 'Tsjalling 502', score: 8.6 },
+        { name: 'Roza van Dijkstra', year: 2021, predicaat: 'Model', bestMatch: 'Rindert 496', score: 9.0 },
+      ];
+      document.getElementById('maresEmpty').style.display = 'none';
+      const table = document.getElementById('maresTable');
+      table.style.display = 'table';
+      const tbody = document.getElementById('maresTbody');
+      tbody.innerHTML = demoMares.map(m => `
+        <tr>
+          <td>
+            <div class="mare-name">${m.name}</div>
+            <div class="mare-meta">${m.predicaat} · ${m.year}</div>
+          </td>
+          <td style="color:rgba(255,255,255,0.65);font-size:0.85rem;">${m.bestMatch}</td>
+          <td>
+            <div class="match-score">
+              <span class="score-pill">${m.score}</span>
+              <div class="score-mini-bar"><div class="score-mini-fill" style="width:${m.score*10}%"></div></div>
+            </div>
+          </td>
+          <td><button class="mare-action-btn">Bekijk</button></td>
+        </tr>
+      `).join('');
+      document.getElementById('statMares').textContent   = demoMares.length;
+      document.getElementById('statMatches').textContent = demoMares.length;
+    }
+  </script>
+</body>
+</html>
