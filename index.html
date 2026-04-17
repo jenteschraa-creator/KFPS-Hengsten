@@ -1251,6 +1251,243 @@
       .stat-item + .stat-item::before { display: none; }
       .footer-inner { grid-template-columns: 1fr; }
     }
+
+    /* ── AUTH MODAL ── */
+    .auth-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .auth-overlay.open { opacity: 1; pointer-events: all; }
+    .auth-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(0,8,20,0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+    .auth-panel {
+      position: relative; z-index: 1;
+      width: 100%; max-width: 430px;
+      background: linear-gradient(160deg, #002244 0%, #001830 100%);
+      border: 1px solid rgba(164,148,102,0.25);
+      border-radius: 6px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.65), 0 0 0 1px rgba(164,148,102,0.06) inset;
+      overflow: hidden; margin: 1rem;
+      transform: translateY(20px) scale(0.97);
+      transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .auth-overlay.open .auth-panel { transform: translateY(0) scale(1); }
+    .auth-panel::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold) 40%, var(--gold-light) 60%, transparent);
+    }
+    .auth-close {
+      position: absolute; top: 1rem; right: 1.25rem; z-index: 2;
+      background: none; border: none; color: rgba(255,255,255,0.3);
+      cursor: pointer; padding: 0.25rem; line-height: 1;
+      transition: color 0.2s ease;
+    }
+    .auth-close:hover { color: rgba(255,255,255,0.7); }
+    .auth-header {
+      padding: 2.25rem 2.5rem 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(164,148,102,0.1);
+    }
+    .auth-logo { height: 34px; filter: brightness(0) invert(1); opacity: 0.8; margin-bottom: 1.25rem; }
+    .auth-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.9rem; font-weight: 400; line-height: 1.2; letter-spacing: -0.01em; margin-bottom: 0.3rem;
+    }
+    .auth-header h2 em { font-style: italic; color: var(--gold-light); }
+    .auth-header p { font-size: 0.82rem; color: rgba(255,255,255,0.45); line-height: 1.55; }
+    .auth-tabs { display: flex; border-bottom: 1px solid rgba(164,148,102,0.1); }
+    .auth-tab {
+      flex: 1; padding: 0.85rem;
+      background: none; border: none;
+      color: rgba(255,255,255,0.4);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; position: relative; transition: color 0.2s ease;
+    }
+    .auth-tab::after {
+      content: ''; position: absolute; bottom: -1px; left: 20%; right: 20%;
+      height: 2px; background: var(--gold);
+      transform: scaleX(0); transition: transform 0.25s ease;
+    }
+    .auth-tab.active { color: var(--gold-light); }
+    .auth-tab.active::after { transform: scaleX(1); }
+    .auth-tab:hover:not(.active) { color: rgba(255,255,255,0.65); }
+    .auth-body { padding: 1.75rem 2.5rem 2rem; }
+    .auth-form { display: none; flex-direction: column; gap: 1rem; }
+    .auth-form.active { display: flex; }
+    .form-field { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-field label {
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(255,255,255,0.45);
+    }
+    .form-field input {
+      width: 100%; padding: 0.72rem 1rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(164,148,102,0.2);
+      border-radius: var(--radius); color: var(--white);
+      font-family: 'Source Sans 3', sans-serif; font-size: 0.9rem; outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+    .form-field input::placeholder { color: rgba(255,255,255,0.22); }
+    .form-field input:focus {
+      border-color: rgba(164,148,102,0.55);
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 0 0 3px rgba(164,148,102,0.08);
+    }
+    .form-field input.error-field { border-color: rgba(220,70,70,0.6); }
+    .auth-submit {
+      width: 100%; padding: 0.82rem 1.5rem;
+      background: var(--gold); color: var(--navy);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; border-radius: var(--radius); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      margin-top: 0.25rem;
+      transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 16px rgba(164,148,102,0.3);
+    }
+    .auth-submit:hover { background: var(--gold-light); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(164,148,102,0.4); }
+    .auth-submit:active { transform: translateY(0); }
+    .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .auth-divider {
+      display: flex; align-items: center; gap: 0.75rem; margin: 0.1rem 0;
+    }
+    .auth-divider::before, .auth-divider::after {
+      content: ''; flex: 1; height: 1px; background: rgba(164,148,102,0.15);
+    }
+    .auth-divider span { font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.28); }
+    .btn-magic {
+      width: 100%; padding: 0.72rem 1.5rem;
+      background: transparent; color: rgba(255,255,255,0.6);
+      font-family: 'Source Sans 3', sans-serif; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.04em;
+      border: 1px solid rgba(164,148,102,0.2); border-radius: var(--radius); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    }
+    .btn-magic:hover { border-color: rgba(164,148,102,0.45); color: var(--white); background: rgba(164,148,102,0.07); }
+    .auth-feedback {
+      font-size: 0.8rem; line-height: 1.5;
+      padding: 0.6rem 0.875rem; border-radius: var(--radius); display: none;
+    }
+    .auth-feedback.show { display: block; }
+    .auth-feedback.error { background: rgba(220,60,60,0.1); border: 1px solid rgba(220,60,60,0.25); color: #ff9a9a; }
+    .auth-feedback.success { background: rgba(100,200,120,0.1); border: 1px solid rgba(100,200,120,0.25); color: #9ef0b2; }
+    .auth-feedback.info { background: rgba(164,148,102,0.1); border: 1px solid rgba(164,148,102,0.25); color: var(--gold-light); }
+    .forgot-link {
+      text-align: right; font-size: 0.74rem; color: rgba(164,148,102,0.65);
+      cursor: pointer; transition: color 0.2s ease; margin-top: -0.3rem;
+    }
+    .forgot-link:hover { color: var(--gold-light); }
+    .spinner {
+      width: 14px; height: 14px;
+      border: 2px solid rgba(0,46,84,0.25); border-top-color: var(--navy);
+      border-radius: 50%; animation: spin 0.7s linear infinite; display: none;
+    }
+    .auth-submit.loading .spinner { display: block; }
+    .auth-submit.loading .btn-label { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .nav-user { display: flex; align-items: center; gap: 0.75rem; }
+    .nav-user-email {
+      font-size: 0.78rem; color: rgba(255,255,255,0.5); letter-spacing: 0.03em;
+      max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .nav-logout {
+      padding: 0.5rem 1.1rem; background: transparent;
+      border: 1px solid rgba(164,148,102,0.3); color: rgba(164,148,102,0.8);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      border-radius: var(--radius); cursor: pointer;
+      transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+    }
+    .nav-logout:hover { border-color: rgba(164,148,102,0.6); color: var(--gold-light); background: rgba(164,148,102,0.07); }
+
+    /* ── REGISTRATIE SUCCESS ── */
+    .auth-success {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 2.75rem 2.5rem 2.5rem;
+      gap: 1.1rem;
+    }
+    .auth-success.show { display: flex; }
+
+    /* verberg header/tabs/body wanneer success actief is */
+    .auth-panel.success-state .auth-header,
+    .auth-panel.success-state .auth-tabs,
+    .auth-panel.success-state .auth-body { display: none; }
+    .auth-panel.success-state .auth-success { display: flex; }
+
+    .auth-success-icon {
+      width: 68px; height: 68px;
+      border-radius: 50%;
+      background: rgba(164,148,102,0.1);
+      border: 1px solid rgba(164,148,102,0.3);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--gold-light);
+      margin-bottom: 0.25rem;
+      animation: successPop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
+    @keyframes successPop {
+      from { transform: scale(0.6); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .auth-success h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.85rem; font-weight: 400; line-height: 1.2;
+    }
+    .auth-success h2 em { font-style: italic; color: var(--gold-light); }
+
+    .auth-success-email {
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--gold-light);
+      background: rgba(164,148,102,0.1);
+      border: 1px solid rgba(164,148,102,0.2);
+      border-radius: var(--radius);
+      padding: 0.45rem 1rem;
+      letter-spacing: 0.03em;
+      word-break: break-all;
+    }
+
+    .auth-success p {
+      font-size: 0.85rem; line-height: 1.65;
+      color: rgba(255,255,255,0.5);
+      max-width: 320px;
+    }
+
+    .auth-success-steps {
+      width: 100%;
+      display: flex; flex-direction: column; gap: 0.6rem;
+      margin: 0.25rem 0;
+    }
+    .auth-success-step {
+      display: flex; align-items: center; gap: 0.875rem;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: var(--radius);
+      padding: 0.65rem 1rem;
+      text-align: left;
+      font-size: 0.84rem;
+      color: rgba(255,255,255,0.65);
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: rgba(164,148,102,0.15);
+      border: 1px solid rgba(164,148,102,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.85rem; font-weight: 600;
+      color: var(--gold-light);
+    }
   </style>
 </head>
 <body>
@@ -1264,7 +1501,7 @@
       <li><a href="#over">Over</a></li>
       <li><a href="#hengsten">Hengsten</a></li>
       <li><a href="#scores">Score Systeem</a></li>
-      <li><a href="#" class="nav-cta">Aan de Slag</a></li>
+      <li id="nav-auth-item"><a href="#" class="nav-cta" id="nav-aan-de-slag">Aan de Slag</a></li>
     </ul>
   </nav>
 
@@ -1825,35 +2062,313 @@
     </div>
   </footer>
 
+  <!-- ── AUTH MODAL ── -->
+  <div class="auth-overlay" id="authOverlay" role="dialog" aria-modal="true">
+    <div class="auth-backdrop" id="authBackdrop"></div>
+    <div class="auth-panel">
+      <button class="auth-close" id="authClose" aria-label="Sluiten">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="auth-header">
+        <img class="auth-logo" src="brand_assets/kfps-logo.webp" alt="KFPS" />
+        <h2>Welkom bij <em>KFPS</em></h2>
+        <p>Log in of maak een account aan om het platform te gebruiken.</p>
+      </div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login">Inloggen</button>
+        <button class="auth-tab" data-tab="register">Registreren</button>
+      </div>
+      <div class="auth-body">
+        <!-- LOGIN -->
+        <form class="auth-form active" id="loginForm" novalidate>
+          <div id="loginFeedback" class="auth-feedback"></div>
+          <div class="form-field">
+            <label for="loginEmail">E-mailadres</label>
+            <input type="email" id="loginEmail" placeholder="uw@email.nl" autocomplete="email" />
+          </div>
+          <div class="form-field">
+            <label for="loginPassword">Wachtwoord</label>
+            <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password" />
+          </div>
+          <span class="forgot-link" id="forgotLink">Wachtwoord vergeten?</span>
+          <button type="submit" class="auth-submit">
+            <div class="spinner"></div>
+            <span class="btn-label">Inloggen</span>
+          </button>
+          <div class="auth-divider"><span>of</span></div>
+          <button type="button" class="btn-magic" id="magicLinkBtn">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M1 7h3m6 0h3M7 1v3m0 6v3M3 3l2 2m4 4l2 2M11 3l-2 2M5 9l-2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+            </svg>
+            Inloggen via Magic Link
+          </button>
+        </form>
+        <!-- REGISTREREN -->
+        <form class="auth-form" id="registerForm" novalidate>
+          <div id="registerFeedback" class="auth-feedback"></div>
+          <div class="form-field">
+            <label for="registerEmail">E-mailadres</label>
+            <input type="email" id="registerEmail" placeholder="uw@email.nl" autocomplete="email" />
+          </div>
+          <div class="form-field">
+            <label for="registerPassword">Wachtwoord</label>
+            <input type="password" id="registerPassword" placeholder="Min. 8 tekens" autocomplete="new-password" />
+          </div>
+          <div class="form-field">
+            <label for="registerConfirm">Bevestig wachtwoord</label>
+            <input type="password" id="registerConfirm" placeholder="Herhaal wachtwoord" autocomplete="new-password" />
+          </div>
+          <button type="submit" class="auth-submit">
+            <div class="spinner"></div>
+            <span class="btn-label">Account Aanmaken</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- ── SUCCESS SCHERM (vervangt header + tabs + body na registratie) ── -->
+      <div class="auth-success" id="authSuccess">
+        <div class="auth-success-icon">
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="15" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M9 16.5l4.5 4.5 9-9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2>Account <em>aangemaakt</em></h2>
+        <p class="auth-success-email" id="successEmail"></p>
+        <p>Er is een bevestigingsmail naar bovenstaand adres gestuurd. Klik op de link in de e-mail om uw account te activeren.</p>
+        <div class="auth-success-steps">
+          <div class="auth-success-step">
+            <span class="step-num">1</span>
+            <span>Open uw inbox</span>
+          </div>
+          <div class="auth-success-step">
+            <span class="step-num">2</span>
+            <span>Klik op de bevestigingslink</span>
+          </div>
+          <div class="auth-success-step">
+            <span class="step-num">3</span>
+            <span>Log in en begin met vergelijken</span>
+          </div>
+        </div>
+        <button class="auth-submit" id="successClose" type="button" style="margin-top:0.5rem;">
+          <span class="btn-label">Sluiten</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Sticky nav
+    // ── STICKY NAV ────────────────────────────────────────────────
     const navbar = document.getElementById('navbar');
     window.addEventListener('scroll', () => {
       navbar.classList.toggle('scrolled', window.scrollY > 60);
     }, { passive: true });
 
-    // Scroll reveal
+    // ── SCROLL REVEAL ─────────────────────────────────────────────
     const reveals = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver((entries) => {
+    const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(e => {
         if (e.isIntersecting) {
           e.target.classList.add('visible');
-          observer.unobserve(e.target);
+          revealObserver.unobserve(e.target);
         }
       });
     }, { threshold: 0.12 });
-    reveals.forEach(el => observer.observe(el));
+    reveals.forEach(el => revealObserver.observe(el));
 
-    // Smooth scroll for anchor links
+    // ── SMOOTH SCROLL (sla # over, anders conflicteert het met de modal) ──
     document.querySelectorAll('a[href^="#"]').forEach(a => {
       a.addEventListener('click', e => {
-        const target = document.querySelector(a.getAttribute('href'));
+        const href = a.getAttribute('href');
+        if (href === '#') return; // laat modal-handler het afhandelen
+        const target = document.querySelector(href);
         if (target) {
           e.preventDefault();
           target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
     });
+
+    // ── AUTH MODAL LOGICA ─────────────────────────────────────────
+    const authOverlay  = document.getElementById('authOverlay');
+    const authBackdrop = document.getElementById('authBackdrop');
+    const authClose    = document.getElementById('authClose');
+    const navAuthItem  = document.getElementById('nav-auth-item');
+
+    function openAuthModal() {
+      authOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeAuthModal() {
+      authOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+      clearAllFeedback();
+    }
+    function bindAanDeSlag() {
+      const btn = document.getElementById('nav-aan-de-slag');
+      if (btn) btn.addEventListener('click', e => { e.preventDefault(); openAuthModal(); });
+    }
+    bindAanDeSlag();
+
+    authBackdrop.addEventListener('click', closeAuthModal);
+    authClose.addEventListener('click', closeAuthModal);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeAuthModal(); });
+
+    // Tabs wisselen
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab + 'Form').classList.add('active');
+        clearAllFeedback();
+      });
+    });
+
+    function showFeedback(id, type, msg) {
+      const el = document.getElementById(id);
+      el.className = 'auth-feedback show ' + type;
+      el.textContent = msg;
+    }
+    function clearFeedback(id) {
+      const el = document.getElementById(id);
+      el.className = 'auth-feedback';
+      el.textContent = '';
+    }
+    function clearAllFeedback() {
+      clearFeedback('loginFeedback');
+      clearFeedback('registerFeedback');
+    }
+    function setLoading(form, on) {
+      const btn = form.querySelector('.auth-submit');
+      btn.disabled = on;
+      btn.classList.toggle('loading', on);
+    }
+    function vertaalFout(msg) {
+      const map = {
+        'Invalid login credentials':                   'Onjuist e-mailadres of wachtwoord.',
+        'Email not confirmed':                         'Bevestig eerst uw e-mailadres via de link in uw inbox.',
+        'User already registered':                     'Er bestaat al een account met dit e-mailadres.',
+        'Password should be at least':                 'Wachtwoord moet minimaal 6 tekens bevatten.',
+        'Unable to validate email address':            'Ongeldig e-mailadres.',
+        'Email rate limit exceeded':                   'Te veel pogingen. Probeer het later opnieuw.',
+        'signup_disabled':                             'Registratie is tijdelijk uitgeschakeld.',
+      };
+      for (const [en, nl] of Object.entries(map)) {
+        if (msg.includes(en)) return nl;
+      }
+      return msg;
+    }
+  </script>
+
+  <!-- Supabase — laadt als laatste, blokkeert NIETS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    (function () {
+      try {
+        const sb = window.supabase.createClient(
+          'https://uiqnlivjhqcxvgjzugcn.supabase.co',
+          'sb_publishable_qUthop3fXE2jhgvkt_YX9Q_nnFN-ZgU'
+        );
+
+        // Inloggen
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const email    = document.getElementById('loginEmail').value.trim();
+          const password = document.getElementById('loginPassword').value;
+          if (!email || !password) { showFeedback('loginFeedback','error','Vul uw e-mailadres en wachtwoord in.'); return; }
+          setLoading(this, true);
+          const { error } = await sb.auth.signInWithPassword({ email, password });
+          setLoading(this, false);
+          if (error) showFeedback('loginFeedback','error', vertaalFout(error.message));
+          else closeAuthModal();
+        });
+
+        // Magic link
+        document.getElementById('magicLinkBtn').addEventListener('click', async function() {
+          const email = document.getElementById('loginEmail').value.trim();
+          if (!email) { showFeedback('loginFeedback','error','Vul eerst uw e-mailadres in.'); return; }
+          this.disabled = true; this.textContent = 'Verzenden…';
+          const { error } = await sb.auth.signInWithOtp({ email });
+          this.disabled = false;
+          this.innerHTML = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 7h3m6 0h3M7 1v3m0 6v3M3 3l2 2m4 4l2 2M11 3l-2 2M5 9l-2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Inloggen via Magic Link';
+          if (error) showFeedback('loginFeedback','error', vertaalFout(error.message));
+          else showFeedback('loginFeedback','success','✓ Magic link verstuurd naar ' + email + '. Controleer uw inbox.');
+        });
+
+        // Wachtwoord vergeten
+        document.getElementById('forgotLink').addEventListener('click', async function() {
+          const email = document.getElementById('loginEmail').value.trim();
+          if (!email) { showFeedback('loginFeedback','info','Vul uw e-mailadres in en klik opnieuw.'); return; }
+          const { error } = await sb.auth.resetPasswordForEmail(email);
+          if (error) showFeedback('loginFeedback','error', vertaalFout(error.message));
+          else showFeedback('loginFeedback','success','✓ Herstel-e-mail verstuurd naar ' + email + '.');
+        });
+
+        // Registreren
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+          e.preventDefault();
+          const email    = document.getElementById('registerEmail').value.trim();
+          const password = document.getElementById('registerPassword').value;
+          const confirm  = document.getElementById('registerConfirm').value;
+          if (!email || !password) { showFeedback('registerFeedback','error','Vul alle velden in.'); return; }
+          if (password.length < 8) { showFeedback('registerFeedback','error','Wachtwoord moet minimaal 8 tekens bevatten.'); return; }
+          if (password !== confirm) {
+            showFeedback('registerFeedback','error','Wachtwoorden komen niet overeen.');
+            document.getElementById('registerConfirm').classList.add('error-field');
+            return;
+          }
+          document.getElementById('registerConfirm').classList.remove('error-field');
+          setLoading(this, true);
+          const { error } = await sb.auth.signUp({ email, password });
+          setLoading(this, false);
+          if (error) {
+            showFeedback('registerFeedback','error', vertaalFout(error.message));
+          } else {
+            // Toon success scherm
+            document.getElementById('successEmail').textContent = email;
+            document.querySelector('.auth-panel').classList.add('success-state');
+          }
+        });
+
+        // Success: sluiten-knop
+        document.getElementById('successClose').addEventListener('click', function() {
+          closeAuthModal();
+          // Reset na animatie
+          setTimeout(function() {
+            document.querySelector('.auth-panel').classList.remove('success-state');
+            document.getElementById('registerEmail').value = '';
+            document.getElementById('registerPassword').value = '';
+            document.getElementById('registerConfirm').value = '';
+            // Reset terug naar login tab
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.querySelector('[data-tab="login"]').classList.add('active');
+            document.getElementById('loginForm').classList.add('active');
+          }, 400);
+        });
+
+        // Auth state — nav aanpassen
+        sb.auth.onAuthStateChange(function(_event, session) {
+          if (session && session.user) {
+            navAuthItem.innerHTML =
+              '<div class="nav-user">' +
+                '<span class="nav-user-email">' + session.user.email + '</span>' +
+                '<button class="nav-logout" id="logoutBtn">Uitloggen</button>' +
+              '</div>';
+            document.getElementById('logoutBtn').addEventListener('click', () => sb.auth.signOut());
+          } else {
+            navAuthItem.innerHTML = '<a href="#" class="nav-cta" id="nav-aan-de-slag">Aan de Slag</a>';
+            bindAanDeSlag();
+          }
+        });
+
+      } catch (err) {
+        console.warn('Supabase auth niet beschikbaar:', err);
+      }
+    })();
   </script>
 </body>
 </html>
