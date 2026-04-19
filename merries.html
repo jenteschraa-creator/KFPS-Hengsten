@@ -171,242 +171,267 @@
     }
     .btn-add-mare-primary:active { transform: translateY(0); }
 
-    /* ── FILTER/SORT BAR ── */
-    .filter-bar {
-      display: flex; align-items: center; gap: 0.875rem;
+    /* ── FILTER ZONE ── */
+    .filter-zone {
+      background: #002040;
+      border: 1px solid rgba(164,148,102,0.18);
+      border-radius: 12px;
+      padding: 1.25rem 1.5rem;
       margin-bottom: 2rem;
-      flex-wrap: wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
     }
 
-    .filter-search {
-      position: relative; flex: 1; min-width: 220px; max-width: 360px;
+    .filter-row-1 {
+      display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
     }
-    .filter-search svg {
-      position: absolute; left: 0.875rem; top: 50%; transform: translateY(-50%);
-      color: rgba(255,255,255,0.3); pointer-events: none;
+
+    .search-wrap {
+      position: relative; flex: 1; min-width: 200px;
     }
-    .filter-search input {
+    .search-wrap svg {
+      position: absolute; left: 0.85rem; top: 50%; transform: translateY(-50%);
+      color: rgba(255,255,255,0.35); pointer-events: none;
+    }
+    .search-input {
       width: 100%;
-      padding: 0.65rem 1rem 0.65rem 2.5rem;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: var(--radius);
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(164,148,102,0.18);
+      border-radius: 8px;
       color: var(--white);
       font-family: 'Source Sans 3', sans-serif;
-      font-size: 0.84rem;
+      font-size: 0.875rem;
+      padding: 0.6rem 1rem 0.6rem 2.5rem;
       outline: none;
-      transition: border-color 0.2s, background 0.2s;
+      transition: border-color 0.2s;
     }
-    .filter-search input::placeholder { color: rgba(255,255,255,0.3); }
-    .filter-search input:focus {
-      border-color: rgba(164,148,102,0.35);
-      background: rgba(255,255,255,0.06);
+    .search-input::placeholder { color: rgba(255,255,255,0.3); }
+    .search-input:focus { border-color: rgba(164,148,102,0.5); }
+
+    .sort-group { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .sort-label { font-size: 0.78rem; color: rgba(255,255,255,0.4); font-weight: 500; white-space: nowrap; }
+
+    .sort-btn {
+      display: flex; align-items: center; gap: 0.4rem;
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(164,148,102,0.18);
+      border-radius: 7px;
+      color: rgba(255,255,255,0.45);
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.8rem; font-weight: 500;
+      padding: 0.45rem 0.85rem;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+    .sort-btn:hover { color: rgba(255,255,255,0.85); border-color: rgba(164,148,102,0.35); }
+    .sort-btn.active { color: var(--gold-light); border-color: rgba(164,148,102,0.55); background: rgba(164,148,102,0.08); }
+
+    .result-count { margin-left: auto; font-size: 0.82rem; color: rgba(255,255,255,0.35); white-space: nowrap; }
+
+    .filter-row-2 {
+      display: flex; align-items: flex-end; gap: 1rem; flex-wrap: wrap;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(164,148,102,0.12);
+    }
+
+    .filter-group { display: flex; flex-direction: column; gap: 0.35rem; flex: 1; min-width: 130px; }
+    .filter-group label {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; color: rgba(255,255,255,0.4);
     }
 
     .filter-select {
-      padding: 0.65rem 2.25rem 0.65rem 0.875rem;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.09);
-      border-radius: var(--radius);
-      color: rgba(255,255,255,0.65);
+      background: rgba(0,0,0,0.25);
+      border: 1px solid rgba(164,148,102,0.18);
+      border-radius: 7px;
+      color: var(--white);
       font-family: 'Source Sans 3', sans-serif;
-      font-size: 0.84rem;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.85rem;
       outline: none; cursor: pointer;
       appearance: none; -webkit-appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.3)' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 0.75rem center;
-      transition: border-color 0.2s, color 0.2s, background-color 0.2s;
-    }
-    .filter-select:focus, .filter-select:hover {
-      border-color: rgba(164,148,102,0.35);
-      color: var(--white);
-      background-color: rgba(255,255,255,0.06);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23667788' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.75rem center;
+      padding-right: 2rem;
+      transition: border-color 0.2s;
     }
     .filter-select option { background: #001a30; }
+    .filter-select:focus { border-color: rgba(164,148,102,0.5); }
 
-    .filter-count {
-      margin-left: auto;
-      font-size: 0.77rem; color: rgba(255,255,255,0.3);
-      letter-spacing: 0.06em; white-space: nowrap;
+    .btn-reset {
+      background: none; border: 1px solid rgba(164,148,102,0.18); border-radius: 7px;
+      color: rgba(255,255,255,0.4);
+      font-family: 'Source Sans 3', sans-serif; font-size: 0.82rem; font-weight: 500;
+      padding: 0.5rem 1rem; cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap; align-self: flex-end;
     }
-    .filter-count strong { color: rgba(255,255,255,0.55); font-weight: 600; }
+    .btn-reset:hover { color: var(--white); border-color: rgba(164,148,102,0.4); }
 
     /* ── MARE GRID ── */
     .mare-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
     }
 
     /* ── MARE CARD ── */
     .mare-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.07);
-      border-radius: 8px;
+      background: #002040;
+      border: 1px solid rgba(164,148,102,0.18);
+      border-radius: 14px;
       overflow: hidden;
       display: flex; flex-direction: column;
-      transition: border-color 0.22s, box-shadow 0.22s, transform 0.22s;
-      position: relative;
+      transition: transform 0.25s cubic-bezier(.22,.68,0,1.2), box-shadow 0.25s;
+      cursor: pointer;
     }
     .mare-card:hover {
-      border-color: rgba(164,148,102,0.22);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
-      transform: translateY(-3px);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(164,148,102,0.25);
     }
 
     /* Card photo */
     .mare-card-photo {
       position: relative; overflow: hidden;
-      aspect-ratio: 4 / 3;
-      background: rgba(0,21,37,0.6);
+      aspect-ratio: 16 / 9;
+      background: #002040;
       flex-shrink: 0;
     }
     .mare-card-photo img {
       width: 100%; height: 100%; object-fit: cover;
       display: block;
-      transition: transform 0.4s ease;
-      filter: brightness(0.85) saturate(0.8);
+      transition: transform 0.45s cubic-bezier(.22,.68,0,1.2);
     }
-    .mare-card:hover .mare-card-photo img { transform: scale(1.04); }
+    .mare-card:hover .mare-card-photo img { transform: scale(1.06); }
 
-    /* Gradient overlay op foto */
-    .mare-card-photo::after {
-      content: '';
+    .mare-card-photo-overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(
-        to bottom,
-        transparent 40%,
-        rgba(0, 21, 37, 0.55) 75%,
-        rgba(0, 21, 37, 0.85) 100%
-      );
+      background: linear-gradient(to top, rgba(0,21,37,0.85) 0%, rgba(0,21,37,0.2) 55%, transparent 100%);
       pointer-events: none;
+    }
+    .mare-card-photo-color {
+      position: absolute; inset: 0;
+      background: rgba(0,79,140,0.12); mix-blend-mode: multiply; pointer-events: none;
     }
 
     /* Predicaat badge op foto */
     .mare-predicaat-badge {
-      position: absolute; top: 0.875rem; left: 0.875rem; z-index: 2;
-      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
-      padding: 0.28rem 0.65rem;
-      border-radius: 100px;
-      backdrop-filter: blur(8px);
-    }
-    .mare-predicaat-badge.ster {
-      background: rgba(164,148,102,0.2); border: 1px solid rgba(164,148,102,0.35);
-      color: var(--gold-light);
-    }
-    .mare-predicaat-badge.kroon {
-      background: rgba(0,121,188,0.2); border: 1px solid rgba(0,121,188,0.35);
-      color: #7ec8f0;
-    }
-    .mare-predicaat-badge.model {
-      background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
-      color: rgba(255,255,255,0.8);
-    }
-    .mare-predicaat-badge.preferent {
-      background: rgba(184,118,0,0.2); border: 1px solid rgba(184,118,0,0.4);
-      color: #f0c060;
+      position: absolute; top: 0.75rem; left: 0.75rem; z-index: 2;
+      background: rgba(0,21,37,0.8); backdrop-filter: blur(6px);
+      border: 1px solid rgba(164,148,102,0.4); border-radius: 5px;
+      font-size: 0.68rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+      color: var(--gold-light); padding: 0.25rem 0.6rem;
     }
 
-    /* Score op foto rechts boven */
+    /* Score badge — blauwe cirkel rechtsonder */
     .mare-score-badge {
-      position: absolute; top: 0.875rem; right: 0.875rem; z-index: 2;
-      display: flex; flex-direction: column; align-items: center;
-      background: rgba(0,21,37,0.75);
-      border: 1px solid rgba(164,148,102,0.3);
-      border-radius: 6px;
-      padding: 0.35rem 0.6rem;
-      backdrop-filter: blur(8px);
+      position: absolute; bottom: 0.75rem; right: 0.75rem; z-index: 2;
+      width: 46px; height: 46px;
+      background: var(--royal);
+      border: 2px solid rgba(255,255,255,0.18); border-radius: 50%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,121,188,0.5);
       line-height: 1;
     }
-    .mare-score-badge-value {
+    .mare-score-badge span {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.15rem; font-weight: 700; color: var(--gold-light);
+      font-size: 1.1rem; font-weight: 700; color: #fff; line-height: 1;
     }
-    .mare-score-badge-label {
-      font-size: 0.55rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
-      color: rgba(255,255,255,0.35); margin-top: 0.1rem;
+    .mare-score-badge small {
+      font-size: 0.5rem; color: rgba(255,255,255,0.7);
+      text-transform: uppercase; letter-spacing: 0.06em; line-height: 1;
     }
 
     /* Card body */
     .mare-card-body {
-      padding: 1.25rem 1.375rem 1.375rem;
-      display: flex; flex-direction: column; gap: 0.75rem;
+      padding: 1.1rem 1.25rem 0;
+      display: flex; flex-direction: column;
       flex: 1;
     }
 
     .mare-card-name {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 1.25rem; font-weight: 600; line-height: 1.2;
-      color: var(--white);
+      font-size: 1.3rem; font-weight: 600; line-height: 1.15;
+      color: var(--white); margin-bottom: 0.5rem; letter-spacing: -0.01em;
+    }
+    .mare-card-name em { font-style: italic; color: var(--gold-light); }
+
+    .card-tags {
+      display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.85rem;
+    }
+    .tag {
+      display: flex; align-items: center; gap: 0.3rem;
+      background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 5px; font-size: 0.72rem; color: rgba(255,255,255,0.45);
+      padding: 0.2rem 0.55rem;
+    }
+    .tag svg { flex-shrink: 0; }
+
+    .score-bar-wrap { margin-bottom: 0.9rem; }
+    .score-bar-label {
+      display: flex; justify-content: space-between;
+      font-size: 0.72rem; color: rgba(255,255,255,0.35); margin-bottom: 0.3rem;
+    }
+    .score-bar-track {
+      height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden;
+    }
+    .score-bar-fill {
+      height: 100%; border-radius: 2px; width: 0%;
+      transition: width 0.8s cubic-bezier(.22,.68,0,1.1);
+      background: linear-gradient(to right, var(--royal), var(--gold));
     }
 
-    .mare-card-meta {
-      display: flex; flex-wrap: wrap; gap: 0.4rem 1rem;
-    }
-    .mare-meta-item {
-      display: flex; align-items: center; gap: 0.35rem;
-      font-size: 0.72rem; color: rgba(255,255,255,0.38);
-      letter-spacing: 0.04em;
-    }
-    .mare-meta-item svg { opacity: 0.55; flex-shrink: 0; }
-
-    /* Score bar */
     .mare-match-row {
-      display: flex; align-items: center; gap: 0.75rem;
-      padding-top: 0.375rem;
-      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex; align-items: baseline; gap: 0.4rem; margin-bottom: 0.85rem;
     }
     .mare-match-label {
-      font-size: 0.67rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-      color: rgba(255,255,255,0.28); white-space: nowrap;
+      font-size: 0.72rem; color: rgba(255,255,255,0.35);
+      text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
     }
     .mare-match-hengst {
       font-family: 'Cormorant Garamond', serif;
-      font-size: 0.95rem; font-weight: 500;
-      color: rgba(255,255,255,0.6);
-      flex: 1; min-width: 0;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-size: 1.05rem; font-weight: 600; color: var(--gold-light);
     }
     .mare-match-none {
-      font-size: 0.78rem; color: rgba(255,255,255,0.22); font-style: italic;
+      font-size: 0.82rem; color: rgba(255,255,255,0.22); font-style: italic;
     }
 
     /* Card footer actions */
     .mare-card-footer {
-      display: flex; gap: 0.625rem;
-      padding: 0 1.375rem 1.25rem;
+      display: flex; gap: 0.6rem;
+      padding: 0.85rem 1.25rem 1.1rem;
+      border-top: 1px solid rgba(164,148,102,0.12);
+      margin-top: 0.5rem;
     }
 
     .btn-mare-bekijk {
-      flex: 1;
-      padding: 0.55rem;
-      background: rgba(164,148,102,0.08);
-      border: 1px solid rgba(164,148,102,0.18);
-      color: rgba(164,148,102,0.8);
+      flex: 1; background: none;
+      border: 1px solid rgba(164,148,102,0.18); border-radius: 7px;
+      color: rgba(255,255,255,0.45);
       font-family: 'Source Sans 3', sans-serif;
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-      border-radius: var(--radius); cursor: pointer; text-decoration: none; text-align: center;
-      display: flex; align-items: center; justify-content: center; gap: 0.35rem;
-      transition: background 0.18s, border-color 0.18s, color 0.18s;
+      font-size: 0.82rem; font-weight: 500;
+      padding: 0.5rem; cursor: pointer; text-decoration: none; text-align: center;
+      display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s, border-color 0.2s;
     }
-    .btn-mare-bekijk:visited { color: rgba(164,148,102,0.8); }
-    .btn-mare-bekijk:hover { background: rgba(164,148,102,0.14); border-color: rgba(164,148,102,0.35); color: var(--gold-light); }
+    .btn-mare-bekijk:visited { color: rgba(255,255,255,0.45); }
+    .btn-mare-bekijk:hover { color: var(--white); border-color: rgba(164,148,102,0.35); }
 
     .btn-mare-match {
-      flex: 1;
-      padding: 0.55rem;
-      background: rgba(0,121,188,0.1);
-      border: 1px solid rgba(0,121,188,0.2);
-      color: rgba(0,121,188,0.85);
+      flex: 1.5;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+      border: none; border-radius: 7px;
+      color: var(--navy);
       font-family: 'Source Sans 3', sans-serif;
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-      border-radius: var(--radius); cursor: pointer; text-decoration: none; text-align: center;
-      display: flex; align-items: center; justify-content: center; gap: 0.35rem;
-      transition: background 0.18s, border-color 0.18s, color 0.18s;
+      font-size: 0.82rem; font-weight: 600;
+      padding: 0.5rem; cursor: pointer; text-decoration: none; text-align: center;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.2s, transform 0.15s;
     }
-    .btn-mare-match:visited { color: rgba(0,121,188,0.85); }
-    .btn-mare-match:hover { background: rgba(0,121,188,0.18); border-color: rgba(0,121,188,0.4); color: #7ec8f0; }
+    .btn-mare-match:hover { opacity: 0.88; transform: scale(1.02); }
+    .btn-mare-match:active { transform: scale(0.98); }
 
     /* ── EMPTY STATE ── */
     .empty-state {
@@ -594,8 +619,11 @@
     @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
 
     /* Card staggered reveal */
-    .mare-card { opacity: 0; animation: cardIn 0.45s ease forwards; }
-    @keyframes cardIn { to { opacity: 1; } }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .mare-card { animation: cardIn 0.45s ease both; }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 1100px) {
@@ -643,7 +671,7 @@
           </a>
         </li>
         <li>
-          <a href="#">
+          <a href="hengsten.html">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3.5H12l-2.5 2 1 3.5L7 8l-3.5 2 1-3.5L2 4.5h3.5L7 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>
             Hengsten
           </a>
@@ -681,27 +709,61 @@
       </button>
     </div>
 
-    <!-- Filter / sort bar -->
-    <div class="filter-bar fade-in fade-in-2" id="filterBar" style="display:none;">
-      <div class="filter-search">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-        <input type="text" id="searchInput" placeholder="Zoek op naam…" autocomplete="off" />
+    <!-- Filter zone -->
+    <div class="filter-zone fade-in fade-in-2" id="filterBar" style="display:none;">
+      <div class="filter-row-1">
+        <div class="search-wrap">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" id="searchInput" type="text" placeholder="Zoek op naam of stamboeknummer…" autocomplete="off" />
+        </div>
+        <div class="sort-group">
+          <span class="sort-label">Sorteer:</span>
+          <button class="sort-btn active" id="sortNaam" data-field="naam">
+            Naam
+            <svg id="sortNaamIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </button>
+          <button class="sort-btn" id="sortJaar" data-field="jaar">
+            Jaar
+            <svg id="sortJaarIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </button>
+          <button class="sort-btn" id="sortScore" data-field="score">
+            Score
+            <svg id="sortScoreIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+          </button>
+        </div>
+        <span class="result-count" id="filterCount"></span>
       </div>
-      <select class="filter-select" id="filterPredicaat">
-        <option value="">Alle predicaten</option>
-        <option value="Ster">Ster</option>
-        <option value="Kroon">Kroon</option>
-        <option value="Model">Model</option>
-        <option value="Preferent">Preferent</option>
-      </select>
-      <select class="filter-select" id="sortBy">
-        <option value="naam">Naam A–Z</option>
-        <option value="naam-desc">Naam Z–A</option>
-        <option value="jaar">Geboortejaar (oud → nieuw)</option>
-        <option value="jaar-desc">Geboortejaar (nieuw → oud)</option>
-        <option value="score-desc">Beste score eerst</option>
-      </select>
-      <div class="filter-count" id="filterCount"></div>
+      <div class="filter-row-2">
+        <div class="filter-group">
+          <label for="filterPredicaat">Predicaat</label>
+          <select class="filter-select" id="filterPredicaat">
+            <option value="">Alle</option>
+            <option value="Ster">Ster</option>
+            <option value="Kroon">Kroon</option>
+            <option value="Model">Model</option>
+            <option value="Preferent">Preferent</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterLeeftijd">Leeftijd</label>
+          <select class="filter-select" id="filterLeeftijd">
+            <option value="">Alle</option>
+            <option value="0-5">0–5 jaar</option>
+            <option value="6-10">6–10 jaar</option>
+            <option value="11-15">11–15 jaar</option>
+            <option value="16+">16+ jaar</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="filterMatch">Match status</label>
+          <select class="filter-select" id="filterMatch">
+            <option value="">Alle</option>
+            <option value="ja">Match berekend</option>
+            <option value="nee">Nog geen match</option>
+          </select>
+        </div>
+        <button class="btn-reset" id="btnReset">Wissen</button>
+      </div>
     </div>
 
     <!-- Mare grid -->
@@ -762,6 +824,9 @@
     var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
     // ── AUTH GUARD ──────────────────────────────────────────────────
+    if (window.location.search.includes('preview=1')) {
+      setTimeout(function() { initPage({ email: 'preview@kfps.nl' }); }, 0);
+    } else {
     sb.auth.getSession().then(function(result) {
       var session = result.data.session;
       if (session && session.user) {
@@ -776,6 +841,7 @@
     sb.auth.onAuthStateChange(function(event) {
       if (event === 'SIGNED_OUT') window.location.replace('index.html');
     });
+    } // end preview else
 
     setTimeout(function() {
       var ls = document.getElementById('loadingScreen');
@@ -803,7 +869,7 @@
         kleur: 'Zwart',
         bestMatch: 'Tsjalling 502',
         score: 8.6,
-        foto: 'https://placehold.co/480x360/001525/A49466?text=Wynona'
+        foto: 'https://placehold.co/480x360/002040/A49466?text=Wynona'
       },
       {
         id: 2,
@@ -814,7 +880,7 @@
         kleur: 'Zwart',
         bestMatch: 'Rindert 496',
         score: 9.0,
-        foto: 'https://placehold.co/480x360/001525/A49466?text=Roza'
+        foto: 'https://placehold.co/480x360/002040/A49466?text=Roza'
       },
       {
         id: 3,
@@ -825,7 +891,7 @@
         kleur: 'Zwart, witte bles',
         bestMatch: 'Mintse 384',
         score: 7.9,
-        foto: 'https://placehold.co/480x360/001525/A49466?text=Elske'
+        foto: 'https://placehold.co/480x360/002040/A49466?text=Elske'
       },
       {
         id: 4,
@@ -836,7 +902,7 @@
         kleur: 'Zwart',
         bestMatch: null,
         score: null,
-        foto: 'https://placehold.co/480x360/001525/A49466?text=Silke'
+        foto: 'https://placehold.co/480x360/002040/A49466?text=Silke'
       }
     ];
 
@@ -854,6 +920,7 @@
 
       // Laad merries (nu demo, straks uit Supabase)
       allMares = demoMares.slice();
+      setSortUI();
       renderMares();
     }
 
@@ -894,6 +961,11 @@
         card.innerHTML = mareCardHTML(mare);
         grid.appendChild(card);
       });
+
+      setTimeout(function() {
+        var bars = grid.querySelectorAll('.score-bar-fill');
+        bars.forEach(function(bar) { bar.style.width = bar.getAttribute('data-score') + '%'; });
+      }, 80);
     }
 
     function emptyStateHTML() {
@@ -914,18 +986,39 @@
       '</div>';
     }
 
-    function predicaatClass(predicaat) {
-      if (!predicaat) return '';
-      return predicaat.toLowerCase();
+    var sortField = 'naam';
+    var sortDir   = 'asc';
+
+    function getAge(jaar) { return 2024 - jaar; }
+
+    function ageRange(jaar) {
+      var a = getAge(jaar);
+      if (a <= 5)  return '0-5';
+      if (a <= 10) return '6-10';
+      if (a <= 15) return '11-15';
+      return '16+';
+    }
+
+    function nameHTML(naam) {
+      var parts = naam.split(' ');
+      if (parts.length < 2) return naam;
+      return '<em>' + parts[0] + '</em> ' + parts.slice(1).join(' ');
     }
 
     function mareCardHTML(mare) {
-      var badge = mare.predicaat
-        ? '<div class="mare-predicaat-badge ' + predicaatClass(mare.predicaat) + '">' + mare.predicaat + '</div>'
+      var predicaatBadge = mare.predicaat
+        ? '<div class="mare-predicaat-badge">' + mare.predicaat + '</div>'
         : '';
 
       var scoreBadge = mare.score !== null
-        ? '<div class="mare-score-badge"><div class="mare-score-badge-value">' + mare.score.toFixed(1) + '</div><div class="mare-score-badge-label">Match</div></div>'
+        ? '<div class="mare-score-badge"><span>' + mare.score.toFixed(1) + '</span><small>score</small></div>'
+        : '';
+
+      var scoreBar = mare.score !== null
+        ? '<div class="score-bar-wrap">' +
+            '<div class="score-bar-label"><span>Match potentieel</span><span>' + (mare.score * 10).toFixed(0) + '/100</span></div>' +
+            '<div class="score-bar-track"><div class="score-bar-fill" data-score="' + (mare.score * 10) + '"></div></div>' +
+          '</div>'
         : '';
 
       var matchRow = mare.bestMatch
@@ -935,55 +1028,49 @@
       return (
         '<div class="mare-card-photo">' +
           '<img src="' + mare.foto + '" alt="' + mare.naam + '" loading="lazy" />' +
-          badge +
+          '<div class="mare-card-photo-overlay"></div>' +
+          '<div class="mare-card-photo-color"></div>' +
+          predicaatBadge +
           scoreBadge +
         '</div>' +
         '<div class="mare-card-body">' +
-          '<div class="mare-card-name">' + mare.naam + '</div>' +
-          '<div class="mare-card-meta">' +
-            '<div class="mare-meta-item">' +
-              '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="1" y="2" width="9" height="8" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M1 5h9M4 1v2M7 1v2" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>' +
-              mare.jaar +
-            '</div>' +
-            '<div class="mare-meta-item">' +
-              '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><rect x="1" y="1" width="9" height="9" rx="1" stroke="currentColor" stroke-width="1.1"/><path d="M3 5.5h5M3 3.5h5M3 7.5h3" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>' +
-              mare.stamboek +
-            '</div>' +
-            (mare.kleur ? '<div class="mare-meta-item"><svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.1"/><circle cx="5.5" cy="5.5" r="1.5" fill="currentColor"/></svg>' + mare.kleur + '</div>' : '') +
+          '<div class="mare-card-name">' + nameHTML(mare.naam) + '</div>' +
+          '<div class="card-tags">' +
+            '<span class="tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + mare.jaar + ' · ' + getAge(mare.jaar) + ' jr</span>' +
+            '<span class="tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>' + mare.stamboek + '</span>' +
+            (mare.kleur ? '<span class="tag">' + mare.kleur + '</span>' : '') +
           '</div>' +
+          scoreBar +
           matchRow +
         '</div>' +
         '<div class="mare-card-footer">' +
-          '<a href="merrie-detail.html?id=' + mare.id + '" class="btn-mare-bekijk">' +
-            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="5.5" cy="5.5" r="4" stroke="currentColor" stroke-width="1.2"/><path d="M3.5 5.5h4M5.5 3.5l2 2-2 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>' +
-            'Bekijk' +
-          '</a>' +
-          '<a href="#" class="btn-mare-match">' +
-            '<svg width="11" height="11" viewBox="0 0 11 11" fill="none"><circle cx="4" cy="4" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M7 7l3 3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>' +
-            'Match Zoeken' +
-          '</a>' +
+          '<a href="merrie-detail.html?id=' + mare.id + '" class="btn-mare-bekijk">Bekijk</a>' +
+          '<a href="#" class="btn-mare-match">Match Zoeken</a>' +
         '</div>'
       );
     }
 
     // ── FILTER & SORT ───────────────────────────────────────────────
     function getFiltered() {
-      var query      = document.getElementById('searchInput').value.toLowerCase().trim();
-      var predicaat  = document.getElementById('filterPredicaat').value;
-      var sort       = document.getElementById('sortBy').value;
+      var query     = document.getElementById('searchInput').value.toLowerCase().trim();
+      var predicaat = document.getElementById('filterPredicaat').value;
+      var leeftijd  = document.getElementById('filterLeeftijd').value;
+      var matchSt   = document.getElementById('filterMatch').value;
 
       var result = allMares.filter(function(m) {
-        var matchNaam = !query || m.naam.toLowerCase().includes(query);
-        var matchPred = !predicaat || m.predicaat === predicaat;
-        return matchNaam && matchPred;
+        if (query && !(m.naam.toLowerCase().includes(query) || m.stamboek.toLowerCase().includes(query))) return false;
+        if (predicaat && m.predicaat !== predicaat) return false;
+        if (leeftijd && ageRange(m.jaar) !== leeftijd) return false;
+        if (matchSt === 'ja'  && !m.bestMatch)  return false;
+        if (matchSt === 'nee' &&  m.bestMatch)  return false;
+        return true;
       });
 
       result.sort(function(a, b) {
-        if (sort === 'naam')       return a.naam.localeCompare(b.naam, 'nl');
-        if (sort === 'naam-desc')  return b.naam.localeCompare(a.naam, 'nl');
-        if (sort === 'jaar')       return a.jaar - b.jaar;
-        if (sort === 'jaar-desc')  return b.jaar - a.jaar;
-        if (sort === 'score-desc') return (b.score || 0) - (a.score || 0);
+        var va, vb;
+        if (sortField === 'naam')  { va = a.naam; vb = b.naam; return sortDir === 'asc' ? va.localeCompare(vb, 'nl') : vb.localeCompare(va, 'nl'); }
+        if (sortField === 'jaar')  { return sortDir === 'asc' ? a.jaar - b.jaar : b.jaar - a.jaar; }
+        if (sortField === 'score') { return sortDir === 'asc' ? (a.score||0) - (b.score||0) : (b.score||0) - (a.score||0); }
         return 0;
       });
 
@@ -992,19 +1079,45 @@
 
     function updateCount(n) {
       var el = document.getElementById('filterCount');
-      el.innerHTML = '<strong>' + n + '</strong> van ' + allMares.length + ' merr' + (allMares.length === 1 ? 'ie' : 'ies');
+      el.textContent = n + ' merr' + (n !== 1 ? 'ies' : 'ie');
     }
 
     function clearFilters() {
       document.getElementById('searchInput').value = '';
       document.getElementById('filterPredicaat').value = '';
-      document.getElementById('sortBy').value = 'naam';
+      document.getElementById('filterLeeftijd').value = '';
+      document.getElementById('filterMatch').value = '';
       renderMares();
     }
 
+    function setSortUI() {
+      ['Naam','Jaar','Score'].forEach(function(f) {
+        var key = f.toLowerCase();
+        var btn  = document.getElementById('sort' + f);
+        var icon = document.getElementById('sort' + f + 'Icon');
+        var isActive = sortField === key;
+        btn.classList.toggle('active', isActive);
+        icon.innerHTML = isActive && sortDir === 'desc'
+          ? '<polyline points="6 9 12 15 18 9"/>'
+          : '<polyline points="18 15 12 9 6 15"/>';
+      });
+    }
+
+    function handleSort(field) {
+      if (sortField === field) { sortDir = sortDir === 'asc' ? 'desc' : 'asc'; }
+      else { sortField = field; sortDir = 'asc'; }
+      setSortUI();
+      renderMares();
+    }
+
+    document.getElementById('sortNaam').addEventListener('click',  function() { handleSort('naam'); });
+    document.getElementById('sortJaar').addEventListener('click',  function() { handleSort('jaar'); });
+    document.getElementById('sortScore').addEventListener('click', function() { handleSort('score'); });
     document.getElementById('searchInput').addEventListener('input', renderMares);
     document.getElementById('filterPredicaat').addEventListener('change', renderMares);
-    document.getElementById('sortBy').addEventListener('change', renderMares);
+    document.getElementById('filterLeeftijd').addEventListener('change', renderMares);
+    document.getElementById('filterMatch').addEventListener('change', renderMares);
+    document.getElementById('btnReset').addEventListener('click', clearFilters);
 
     // ── MODAL ───────────────────────────────────────────────────────
     function openModal() {
@@ -1048,7 +1161,7 @@
         kleur: kleur || null,
         bestMatch: null,
         score: null,
-        foto: 'https://placehold.co/480x360/001525/A49466?text=' + encodeURIComponent(naam.split(' ')[0])
+        foto: 'https://placehold.co/480x360/002040/A49466?text=' + encodeURIComponent(naam.split(' ')[0])
       };
 
       allMares.unshift(newMare);

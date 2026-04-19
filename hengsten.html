@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hengsten — KFPS Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --navy: #002E54;
+    --royal: #0079BC;
+    --gold: #A49466;
+    --gold-light: #C4B48A;
+    --bg: #001525;
+    --surface: #002040;
+    --surface2: #002a50;
+    --text: #E8E0D0;
+    --text-muted: #8899aa;
+    --border: rgba(164,148,102,0.18);
+    --shadow: 0 4px 24px rgba(0,0,0,0.45), 0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 3rem;
+    height: 64px;
+    background: rgba(0,21,37,0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(164,148,102,0.15);
+  }
+
+  .nav-left { display: flex; align-items: center; gap: 2.5rem; }
+
+  .nav-logo img {
+    height: 36px;
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+    transition: opacity 0.2s;
+  }
+  .nav-logo img:hover { opacity: 0.7; }
+
+  .nav-links {
+    display: flex; align-items: center; gap: 0.25rem; list-style: none;
+  }
+  .nav-links a {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.45rem 0.875rem;
+    color: rgba(255,255,255,0.55);
+    text-decoration: none;
+    font-size: 0.82rem; font-weight: 500; letter-spacing: 0.05em;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+  }
+  .nav-links a:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+  .nav-links a.active { background: rgba(164,148,102,0.12); color: var(--gold-light); }
+  .nav-links a svg { opacity: 0.7; }
+
+  .nav-right { display: flex; align-items: center; gap: 1rem; }
+
+  .nav-user-badge { display: flex; align-items: center; gap: 0.625rem; }
+  .nav-avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, rgba(164,148,102,0.3), rgba(0,121,188,0.3));
+    border: 1px solid rgba(164,148,102,0.35);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 0.9rem; font-weight: 600; color: var(--gold-light);
+    text-transform: uppercase;
+  }
+  .nav-user-email {
+    font-size: 0.8rem; color: rgba(255,255,255,0.5);
+    max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .nav-logout-btn {
+    padding: 0.42rem 1rem;
+    background: transparent;
+    border: 1px solid rgba(164,148,102,0.25);
+    color: rgba(164,148,102,0.7);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    border-radius: 6px; cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+  }
+  .nav-logout-btn:hover { border-color: rgba(164,148,102,0.5); color: var(--gold-light); background: rgba(164,148,102,0.06); }
+
+  /* MAIN */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 64px auto 0;
+    padding: 2.5rem 2rem 4rem;
+  }
+
+  /* PAGE HEADER */
+  .page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .page-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.8rem;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .page-title em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .page-subtitle {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 0.3rem;
+  }
+
+  /* FILTER ZONE */
+  .filter-zone {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .filter-row-1 {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 0.85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .search-input {
+    width: 100%;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.875rem;
+    padding: 0.6rem 1rem 0.6rem 2.5rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input::placeholder { color: var(--text-muted); }
+  .search-input:focus { border-color: rgba(164,148,102,0.5); }
+
+  .sort-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .sort-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .sort-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text-muted);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.45rem 0.85rem;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+    white-space: nowrap;
+  }
+
+  .sort-btn:hover { color: var(--text); border-color: rgba(164,148,102,0.35); }
+
+  .sort-btn.active {
+    color: var(--gold-light);
+    border-color: rgba(164,148,102,0.55);
+    background: rgba(164,148,102,0.08);
+  }
+
+  .result-count {
+    margin-left: auto;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .filter-row-2 {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+    flex-wrap: wrap;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    flex: 1;
+    min-width: 130px;
+  }
+
+  .filter-group label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .filter-select {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.85rem;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23667788' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2rem;
+  }
+
+  .filter-select option { background: var(--surface2); }
+  .filter-select:focus { border-color: rgba(164,148,102,0.5); }
+
+  .btn-reset {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text-muted);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+    align-self: flex-end;
+  }
+
+  .btn-reset:hover { color: var(--text); border-color: rgba(164,148,102,0.4); }
+
+  /* GRID */
+  .stallion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .stallion-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: cardIn 0.45s ease both;
+    transition: transform 0.25s cubic-bezier(.22,.68,0,1.2), box-shadow 0.25s;
+    cursor: pointer;
+  }
+
+  .stallion-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(164,148,102,0.25);
+  }
+
+  .card-photo {
+    position: relative;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    background: var(--surface2);
+  }
+
+  .card-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.45s cubic-bezier(.22,.68,0,1.2);
+    display: block;
+  }
+
+  .stallion-card:hover .card-photo img { transform: scale(1.06); }
+
+  .card-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,21,37,0.85) 0%, rgba(0,21,37,0.2) 55%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .card-photo-color {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,79,140,0.12);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+  }
+
+  .badge-predicaat {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    background: rgba(0,21,37,0.8);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(164,148,102,0.4);
+    border-radius: 5px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    padding: 0.25rem 0.6rem;
+  }
+
+  .badge-score {
+    position: absolute;
+    bottom: 0.75rem;
+    right: 0.75rem;
+    width: 46px;
+    height: 46px;
+    background: var(--royal);
+    border: 2px solid rgba(255,255,255,0.18);
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,121,188,0.5);
+  }
+
+  .badge-score span {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .badge-score small {
+    font-size: 0.5rem;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 1;
+  }
+
+  .card-body {
+    padding: 1.1rem 1.25rem 0;
+    flex: 1;
+  }
+
+  .card-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .card-name em { font-style: italic; color: var(--gold-light); }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .tag {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 5px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    padding: 0.2rem 0.55rem;
+  }
+
+  .tag svg { flex-shrink: 0; }
+
+  .score-bar-wrap {
+    margin-bottom: 0.9rem;
+  }
+
+  .score-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-bottom: 0.3rem;
+  }
+
+  .score-bar-track {
+    height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.8s cubic-bezier(.22,.68,0,1.1);
+    background: linear-gradient(to right, var(--royal), var(--gold));
+  }
+
+  .dekgeld-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .dekgeld-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+
+  .dekgeld-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--gold-light);
+  }
+
+  .card-footer {
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.85rem 1.25rem 1.1rem;
+    border-top: 1px solid var(--border);
+    margin-top: 0.5rem;
+  }
+
+  .btn-profiel {
+    flex: 1;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text-muted);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-profiel:hover { color: var(--text); border-color: rgba(164,148,102,0.35); }
+
+  .btn-match {
+    flex: 1.5;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+    border: none;
+    border-radius: 7px;
+    color: var(--navy);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.15s;
+    text-align: center;
+  }
+
+  .btn-match:hover { opacity: 0.88; transform: scale(1.02); }
+  .btn-match:active { transform: scale(0.98); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .empty-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+  }
+
+  .empty-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .empty-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    max-width: 320px;
+    line-height: 1.65;
+  }
+
+  /* LOADING */
+  .loading {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 4rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="index.html" class="nav-logo">
+      <img src="brand_assets/kfps-logo.webp" alt="KFPS Hengsten" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="dashboard.html"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>Dashboard</a></li>
+      <li><a href="merries.html"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M1 13c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Mijn Merries</a></li>
+      <li><a href="hengsten.html" class="active"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3.5H12l-2.5 2 1 3.5L7 8l-3.5 2 1-3.5L2 4.5h3.5L7 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>Hengsten</a></li>
+      <li><a href="#"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M8.5 8.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Match Zoeken</a></li>
+    </ul>
+  </div>
+  <div class="nav-right">
+    <div class="nav-user-badge">
+      <div class="nav-avatar" id="navAvatar">?</div>
+      <span class="nav-user-email" id="navEmail">Laden…</span>
+    </div>
+    <button class="nav-logout-btn" id="btnSignOut">Uitloggen</button>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">KFPS <em>Hengsten</em></h1>
+      <p class="page-subtitle">Goedgekeurde dekhengsten — seizoen 2024/2025</p>
+    </div>
+  </div>
+
+  <!-- FILTER ZONE -->
+  <div class="filter-zone">
+    <div class="filter-row-1">
+      <div class="search-wrap">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" id="searchInput" type="text" placeholder="Zoek op naam of nummer…" />
+      </div>
+
+      <div class="sort-group">
+        <span class="sort-label">Sorteer:</span>
+        <button class="sort-btn active" id="sortScore" data-field="score">
+          Score
+          <svg id="sortScoreIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </button>
+        <button class="sort-btn" id="sortNaam" data-field="naam">
+          Naam
+          <svg id="sortNaamIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </button>
+        <button class="sort-btn" id="sortDekgeld" data-field="dekgeld">
+          Dekgeld
+          <svg id="sortDekgeldIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </button>
+      </div>
+
+      <span class="result-count" id="resultCount"></span>
+    </div>
+
+    <div class="filter-row-2">
+      <div class="filter-group">
+        <label for="filterPredicaat">Predicaat</label>
+        <select class="filter-select" id="filterPredicaat">
+          <option value="">Alle</option>
+          <option value="Kroon">Kroon</option>
+          <option value="Preferent">Preferent</option>
+          <option value="Prestatie">Prestatie</option>
+          <option value="Model">Model</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filterStokmaat">Stokmaat</label>
+        <select class="filter-select" id="filterStokmaat">
+          <option value="">Alle</option>
+          <option value="156-160">156–160 cm</option>
+          <option value="161-165">161–165 cm</option>
+          <option value="166-170">166–170 cm</option>
+          <option value="171+">171+ cm</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filterLeeftijd">Leeftijd</label>
+        <select class="filter-select" id="filterLeeftijd">
+          <option value="">Alle</option>
+          <option value="3-6">3–6 jaar</option>
+          <option value="7-10">7–10 jaar</option>
+          <option value="11-15">11–15 jaar</option>
+          <option value="16+">16+ jaar</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="filterDekgeld">Dekgeld</label>
+        <select class="filter-select" id="filterDekgeld">
+          <option value="">Alle</option>
+          <option value="0-500">€0 – €500</option>
+          <option value="500-1000">€500 – €1.000</option>
+          <option value="1000-1500">€1.000 – €1.500</option>
+          <option value="1500+">€1.500+</option>
+        </select>
+      </div>
+      <button class="btn-reset" id="btnReset">Wissen</button>
+    </div>
+  </div>
+
+  <!-- GRID -->
+  <div class="stallion-grid" id="stallionGrid">
+    <div class="loading">Hengsten laden…</div>
+  </div>
+</main>
+
+<script>
+var demoStallions = [
+  { id:1,  naam:'Alwin fan de Stjelp',    nr:'KFPS 524',  jaar:2016, predicaat:'Kroon',     stokmaat:165, dekgeld:950,  score:88, foto:'https://placehold.co/480x270/002040/A49466?text=Alwin' },
+  { id:2,  naam:'Beart 454',              nr:'KFPS 454',  jaar:2012, predicaat:'Preferent', stokmaat:169, dekgeld:1200, score:92, foto:'https://placehold.co/480x270/002040/A49466?text=Beart' },
+  { id:3,  naam:'Doaitsen fan Tinga',     nr:'KFPS 501',  jaar:2014, predicaat:'Prestatie', stokmaat:162, dekgeld:750,  score:79, foto:'https://placehold.co/480x270/002040/A49466?text=Doaitsen' },
+  { id:4,  naam:'Eros van de Slothoeve',  nr:'KFPS 539',  jaar:2018, predicaat:'Model',     stokmaat:167, dekgeld:600,  score:74, foto:'https://placehold.co/480x270/002040/A49466?text=Eros' },
+  { id:5,  naam:'Fabe 489',               nr:'KFPS 489',  jaar:2013, predicaat:'Kroon',     stokmaat:171, dekgeld:1450, score:95, foto:'https://placehold.co/480x270/002040/A49466?text=Fabe' },
+  { id:6,  naam:'Gjalt 444',              nr:'KFPS 444',  jaar:2011, predicaat:'Preferent', stokmaat:158, dekgeld:1100, score:89, foto:'https://placehold.co/480x270/002040/A49466?text=Gjalt' },
+  { id:7,  naam:'Haitse fan Wâldhiem',    nr:'KFPS 512',  jaar:2015, predicaat:'Kroon',     stokmaat:163, dekgeld:875,  score:83, foto:'https://placehold.co/480x270/002040/A49466?text=Haitse' },
+  { id:8,  naam:'Ids 457',                nr:'KFPS 457',  jaar:2012, predicaat:'Prestatie', stokmaat:168, dekgeld:500,  score:71, foto:'https://placehold.co/480x270/002040/A49466?text=Ids' },
+  { id:9,  naam:'Jasper fan Terwisscha',  nr:'KFPS 531',  jaar:2017, predicaat:'Model',     stokmaat:160, dekgeld:700,  score:77, foto:'https://placehold.co/480x270/002040/A49466?text=Jasper' },
+  { id:10, naam:'Leffert 468',            nr:'KFPS 468',  jaar:2013, predicaat:'Preferent', stokmaat:166, dekgeld:1350, score:91, foto:'https://placehold.co/480x270/002040/A49466?text=Leffert' },
+  { id:11, naam:'Maurus van Stal Dijkstra',nr:'KFPS 547', jaar:2019, predicaat:'Kroon',     stokmaat:164, dekgeld:950,  score:86, foto:'https://placehold.co/480x270/002040/A49466?text=Maurus' },
+  { id:12, naam:'Nanning 471',            nr:'KFPS 471',  jaar:2013, predicaat:'Preferent', stokmaat:173, dekgeld:1600, score:94, foto:'https://placehold.co/480x270/002040/A49466?text=Nanning' },
+  { id:13, naam:'Olrik fan \'t Heidezand', nr:'KFPS 502', jaar:2014, predicaat:'Prestatie', stokmaat:161, dekgeld:650,  score:76, foto:'https://placehold.co/480x270/002040/A49466?text=Olrik' },
+  { id:14, naam:'Piter 490',              nr:'KFPS 490',  jaar:2013, predicaat:'Kroon',     stokmaat:170, dekgeld:1150, score:90, foto:'https://placehold.co/480x270/002040/A49466?text=Piter' },
+  { id:15, naam:'Quirijn van Wolfsberg',  nr:'KFPS 555',  jaar:2020, predicaat:'Model',     stokmaat:162, dekgeld:800,  score:81, foto:'https://placehold.co/480x270/002040/A49466?text=Quirijn' },
+];
+
+var sortField = 'score';
+var sortDir = 'desc';
+
+function getAge(jaar) { return 2024 - jaar; }
+
+function stokmaatRange(sm) {
+  if (sm <= 160) return '156-160';
+  if (sm <= 165) return '161-165';
+  if (sm <= 170) return '166-170';
+  return '171+';
+}
+
+function ageRange(jaar) {
+  var age = getAge(jaar);
+  if (age <= 6)  return '3-6';
+  if (age <= 10) return '7-10';
+  if (age <= 15) return '11-15';
+  return '16+';
+}
+
+function dekgeldRange(dk) {
+  if (dk < 500)  return '0-500';
+  if (dk < 1000) return '500-1000';
+  if (dk < 1500) return '1000-1500';
+  return '1500+';
+}
+
+function getFiltered() {
+  var q   = document.getElementById('searchInput').value.toLowerCase().trim();
+  var fp  = document.getElementById('filterPredicaat').value;
+  var fsm = document.getElementById('filterStokmaat').value;
+  var fl  = document.getElementById('filterLeeftijd').value;
+  var fd  = document.getElementById('filterDekgeld').value;
+
+  var result = demoStallions.filter(function(s) {
+    if (q  && !(s.naam.toLowerCase().includes(q) || s.nr.toLowerCase().includes(q))) return false;
+    if (fp  && s.predicaat !== fp)          return false;
+    if (fsm && stokmaatRange(s.stokmaat) !== fsm) return false;
+    if (fl  && ageRange(s.jaar) !== fl)     return false;
+    if (fd  && dekgeldRange(s.dekgeld) !== fd) return false;
+    return true;
+  });
+
+  result.sort(function(a, b) {
+    var va = a[sortField], vb = b[sortField];
+    if (typeof va === 'string') {
+      return sortDir === 'asc' ? va.localeCompare(vb) : vb.localeCompare(va);
+    }
+    return sortDir === 'asc' ? va - vb : vb - va;
+  });
+
+  return result;
+}
+
+function nameHTML(naam) {
+  var parts = naam.split(' ');
+  if (parts.length < 2) return naam;
+  return '<em>' + parts[0] + '</em> ' + parts.slice(1).join(' ');
+}
+
+function renderGrid() {
+  var list = getFiltered();
+  var grid = document.getElementById('stallionGrid');
+  document.getElementById('resultCount').textContent = list.length + ' hengst' + (list.length !== 1 ? 'en' : '');
+
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-state">' +
+      '<div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>' +
+      '<div class="empty-title">Geen hengsten gevonden</div>' +
+      '<p class="empty-text">Pas de filters aan om andere resultaten te zien.</p>' +
+      '</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map(function(s, i) {
+    var delay = (i * 0.05).toFixed(2) + 's';
+    return '<div class="stallion-card" style="animation-delay:' + delay + '">' +
+      '<div class="card-photo">' +
+        '<img src="' + s.foto + '" alt="' + s.naam + '" loading="lazy" />' +
+        '<div class="card-photo-overlay"></div>' +
+        '<div class="card-photo-color"></div>' +
+        '<span class="badge-predicaat">' + s.predicaat + '</span>' +
+        '<div class="badge-score"><span>' + s.score + '</span><small>score</small></div>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="card-name">' + nameHTML(s.naam) + '</div>' +
+        '<div class="card-tags">' +
+          '<span class="tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + s.jaar + ' · ' + getAge(s.jaar) + ' jr</span>' +
+          '<span class="tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 17l4-8 4 4 4-6 4 10"/></svg>' + s.stokmaat + ' cm</span>' +
+          '<span class="tag">' + s.nr + '</span>' +
+        '</div>' +
+        '<div class="score-bar-wrap">' +
+          '<div class="score-bar-label"><span>Match potentieel</span><span>' + s.score + '/100</span></div>' +
+          '<div class="score-bar-track"><div class="score-bar-fill" data-score="' + s.score + '"></div></div>' +
+        '</div>' +
+        '<div class="dekgeld-row">' +
+          '<span class="dekgeld-label">Dekgeld</span>' +
+          '<span class="dekgeld-value">€' + s.dekgeld.toLocaleString('nl-NL') + '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="card-footer">' +
+        '<a class="btn-profiel" href="#">Profiel</a>' +
+        '<button class="btn-match">Match Zoeken</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  setTimeout(function() {
+    var bars = grid.querySelectorAll('.score-bar-fill');
+    bars.forEach(function(bar) {
+      bar.style.width = bar.getAttribute('data-score') + '%';
+    });
+  }, 80);
+}
+
+function setSortUI() {
+  ['Score', 'Naam', 'Dekgeld'].forEach(function(f) {
+    var key = f.toLowerCase();
+    var btn = document.getElementById('sort' + f);
+    var icon = document.getElementById('sort' + f + 'Icon');
+    var isActive = sortField === key;
+    btn.classList.toggle('active', isActive);
+    if (isActive) {
+      icon.innerHTML = sortDir === 'asc'
+        ? '<polyline points="18 15 12 9 6 15"/>'
+        : '<polyline points="6 9 12 15 18 9"/>';
+    } else {
+      icon.innerHTML = '<polyline points="18 15 12 9 6 15"/>';
+    }
+  });
+}
+
+function handleSort(field) {
+  if (sortField === field) {
+    sortDir = sortDir === 'desc' ? 'asc' : 'desc';
+  } else {
+    sortField = field;
+    sortDir = 'desc';
+  }
+  setSortUI();
+  renderGrid();
+}
+
+document.getElementById('sortScore').addEventListener('click', function() { handleSort('score'); });
+document.getElementById('sortNaam').addEventListener('click', function() { handleSort('naam'); });
+document.getElementById('sortDekgeld').addEventListener('click', function() { handleSort('dekgeld'); });
+
+['searchInput','filterPredicaat','filterStokmaat','filterLeeftijd','filterDekgeld'].forEach(function(id) {
+  document.getElementById(id).addEventListener('input', renderGrid);
+  document.getElementById(id).addEventListener('change', renderGrid);
+});
+
+document.getElementById('btnReset').addEventListener('click', function() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('filterPredicaat').value = '';
+  document.getElementById('filterStokmaat').value = '';
+  document.getElementById('filterLeeftijd').value = '';
+  document.getElementById('filterDekgeld').value = '';
+  renderGrid();
+});
+</script>
+
+<script>
+var SUPABASE_URL = 'https://uiqnlivjhqcxvgjzugcn.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_qUthop3fXE2jhgvkt_YX9Q_nnFN-ZgU';
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+function initPage(user) {
+  var displayName = user.email || '';
+  document.getElementById('navAvatar').textContent = displayName.charAt(0).toUpperCase();
+  document.getElementById('navEmail').textContent = displayName;
+  setSortUI();
+  renderGrid();
+}
+
+if (window.location.search.includes('preview=1')) {
+  setTimeout(function() { initPage({ email: 'preview@kfps.nl' }); }, 0);
+} else {
+  sb.auth.getSession().then(function(ref) {
+    var session = ref.data.session;
+    if (!session) { window.location.href = 'index.html'; return; }
+    initPage(session.user);
+  });
+  sb.auth.onAuthStateChange(function(event) {
+    if (event === 'SIGNED_OUT') window.location.href = 'index.html';
+  });
+  document.getElementById('btnSignOut').addEventListener('click', function() {
+    sb.auth.signOut();
+  });
+}
+</script>
+</body>
+</html>
