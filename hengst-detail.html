@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KFPS — Hengst Detail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:       #002E54;
+      --navy-mid:   #003d6e;
+      --navy-dark:  #001a30;
+      --royal:      #0079BC;
+      --gold:       #A49466;
+      --gold-light: #C4B48A;
+      --gold-pale:  #e8dfc8;
+      --white:      #FFFFFF;
+      --radius:     4px;
+      --bg:         #001525;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Source Sans 3', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; }
+
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 3rem; height: 64px;
+      background: rgba(0,21,37,0.96); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(164,148,102,0.15);
+    }
+    .nav-left { display: flex; align-items: center; gap: 2.5rem; }
+    .nav-logo img { height: 36px; filter: brightness(0) invert(1); opacity: 0.9; transition: opacity 0.2s; }
+    .nav-logo img:hover { opacity: 0.7; }
+    .nav-links { display: flex; align-items: center; gap: 0.25rem; list-style: none; }
+    .nav-links a {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.45rem 0.875rem; color: rgba(255,255,255,0.55);
+      text-decoration: none; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.05em;
+      border-radius: var(--radius); transition: background 0.15s, color 0.15s;
+    }
+    .nav-links a:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+    .nav-links a.active { background: rgba(164,148,102,0.12); color: var(--gold-light); }
+    .nav-right { display: flex; align-items: center; gap: 1rem; }
+    .nav-user-badge { display: flex; align-items: center; gap: 0.625rem; }
+    .nav-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: linear-gradient(135deg, rgba(164,148,102,0.3), rgba(0,121,188,0.3));
+      border: 1px solid rgba(164,148,102,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; font-weight: 600;
+      color: var(--gold-light); text-transform: uppercase;
+    }
+    .nav-user-email { font-size: 0.8rem; color: rgba(255,255,255,0.5); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .nav-logout-btn {
+      padding: 0.42rem 1rem; background: transparent;
+      border: 1px solid rgba(164,148,102,0.25); color: rgba(164,148,102,0.7);
+      font-family: 'Source Sans 3', sans-serif; font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase; border-radius: var(--radius); cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .nav-logout-btn:hover { border-color: rgba(164,148,102,0.5); color: var(--gold-light); background: rgba(164,148,102,0.06); }
+
+    /* ── HERO ── */
+    .hero { margin-top: 64px; position: relative; height: 480px; overflow: hidden; }
+    .hero-img { width: 100%; height: 100%; object-fit: cover; filter: brightness(0.55) saturate(0.75); transform: scale(1.02); transition: transform 8s ease; }
+    .hero-img.loaded { transform: scale(1); }
+    .hero-gradient {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(0,21,37,0.2) 0%, rgba(0,21,37,0.1) 30%, rgba(0,21,37,0.65) 70%, rgba(0,21,37,0.97) 100%);
+    }
+    .hero-content {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 2.5rem 3rem;
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem;
+    }
+    .hero-back {
+      position: absolute; top: 1.5rem; left: 3rem;
+      display: flex; align-items: center; gap: 0.5rem;
+      color: rgba(255,255,255,0.6); text-decoration: none;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .hero-back:hover { color: var(--white); }
+    .hero-meta { flex: 1; }
+    .hero-predicaat {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      padding: 0.3rem 0.8rem; border-radius: 100px; margin-bottom: 0.875rem;
+      backdrop-filter: blur(8px);
+      background: rgba(164,148,102,0.2); border: 1px solid rgba(164,148,102,0.4); color: var(--gold-light);
+    }
+    .hero-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 300; line-height: 1.05; letter-spacing: -0.02em;
+    }
+    .hero-name em { font-style: italic; font-weight: 600; color: var(--gold-light); }
+    .hero-stamboek { margin-top: 0.625rem; font-size: 0.8rem; color: rgba(255,255,255,0.45); letter-spacing: 0.12em; }
+
+    /* Hero CTA — match met merrie dropdown */
+    .hero-cta { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; flex-shrink: 0; }
+
+    .match-dropdown-wrap { position: relative; }
+
+    .btn-match-primary {
+      display: inline-flex; align-items: center; gap: 0.7rem;
+      padding: 1rem 2.25rem;
+      background: var(--gold); color: var(--navy);
+      font-family: 'Source Sans 3', sans-serif; font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      border: none; border-radius: var(--radius); cursor: pointer;
+      box-shadow: 0 6px 28px rgba(164,148,102,0.35);
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .btn-match-primary:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 10px 36px rgba(164,148,102,0.45); }
+    .btn-match-primary:active { transform: translateY(0); }
+
+    .mare-dropdown {
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: #001e35; border: 1px solid rgba(164,148,102,0.25);
+      border-radius: 8px; min-width: 240px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+      display: none; flex-direction: column; overflow: hidden;
+      z-index: 50;
+      animation: dropIn 0.2s cubic-bezier(0.34,1.4,0.64,1) forwards;
+    }
+    .mare-dropdown.open { display: flex; }
+    @keyframes dropIn { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:translateY(0); } }
+
+    .dropdown-label {
+      padding: 0.75rem 1rem 0.5rem;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .dropdown-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem 1rem; cursor: pointer;
+      transition: background 0.15s;
+      border: none; background: none; width: 100%; text-align: left;
+      color: var(--white);
+    }
+    .dropdown-item:hover { background: rgba(164,148,102,0.08); }
+    .dropdown-item-avatar {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(164,148,102,0.15); border: 1px solid rgba(164,148,102,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif; font-size: 0.85rem; font-weight: 600; color: var(--gold-light);
+    }
+    .dropdown-item-info { flex: 1; min-width: 0; text-align: left; }
+    .dropdown-item-naam { font-family: 'Cormorant Garamond', serif; font-size: 0.95rem; font-weight: 600; color: var(--white); }
+    .dropdown-item-meta { font-size: 0.7rem; color: rgba(255,255,255,0.35); margin-top: 0.1rem; }
+    .dropdown-item-score {
+      font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 700; color: var(--gold-light);
+    }
+
+    /* ── MAIN LAYOUT ── */
+    .page-body {
+      max-width: 1320px; margin: 0 auto;
+      padding: 2.5rem 3rem 5rem;
+      display: grid; grid-template-columns: 1fr 380px;
+      gap: 2rem; position: relative; z-index: 1;
+    }
+
+    /* ── PANEL ── */
+    .panel {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 8px; overflow: hidden; margin-bottom: 1.5rem;
+    }
+    .panel:last-child { margin-bottom: 0; }
+    .panel-head {
+      padding: 1.25rem 1.625rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .panel-head h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 500; }
+    .panel-head h2 em { font-style: italic; color: var(--gold-light); }
+    .panel-body { padding: 1.625rem; }
+
+    /* ── INFO GRID ── */
+    .info-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px; overflow: hidden; margin-bottom: 1.25rem;
+    }
+    .info-cell {
+      padding: 1.125rem 1.25rem; background: rgba(255,255,255,0.02);
+      display: flex; flex-direction: column; gap: 0.3rem; transition: background 0.15s;
+    }
+    .info-cell:hover { background: rgba(255,255,255,0.04); }
+    .info-label { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.32); }
+    .info-value { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; font-weight: 500; color: var(--white); line-height: 1.2; }
+    .info-value.small { font-family: 'Source Sans 3', sans-serif; font-size: 0.9rem; font-weight: 400; }
+    .info-value.gold { color: var(--gold-light); }
+
+    /* ── SCORES ── */
+    .score-overall {
+      display: flex; align-items: center; gap: 1.25rem;
+      padding: 1.25rem; border-radius: 6px;
+      background: rgba(164,148,102,0.06); border: 1px solid rgba(164,148,102,0.14);
+      margin-bottom: 1.25rem;
+    }
+    .score-overall-num { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 700; color: var(--gold-light); line-height: 1; flex-shrink: 0; }
+    .score-overall-detail { flex: 1; }
+    .score-overall-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 0.35rem; }
+    .score-overall-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .score-overall-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #0079BC, #A49466, #C4B48A); width: 0; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
+    .score-stars { display: flex; gap: 0.25rem; margin-top: 0.4rem; }
+    .score-star { color: rgba(164,148,102,0.25); font-size: 0.85rem; }
+    .score-star.filled { color: var(--gold); }
+
+    .scores-tabs {
+      display: flex; gap: 0.5rem; margin-bottom: 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding-bottom: 0.875rem;
+    }
+    .score-tab {
+      padding: 0.35rem 0.875rem;
+      border-radius: 100px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.06em;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.4);
+      cursor: pointer; transition: all 0.18s;
+    }
+    .score-tab.active { background: rgba(164,148,102,0.12); border-color: rgba(164,148,102,0.3); color: var(--gold-light); }
+
+    .scores-list { display: flex; flex-direction: column; gap: 1.125rem; }
+    .score-row { display: flex; flex-direction: column; gap: 0.5rem; }
+    .score-row-head { display: flex; align-items: center; justify-content: space-between; }
+    .score-row-label { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; color: rgba(255,255,255,0.55); }
+    .score-row-value { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 700; color: var(--gold-light); }
+    .score-row-value span { font-size: 0.7rem; font-family: 'Source Sans 3', sans-serif; color: rgba(255,255,255,0.28); font-weight: 400; }
+    .score-bar-track { height: 5px; border-radius: 3px; background: rgba(255,255,255,0.07); overflow: hidden; }
+    .score-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--royal), var(--gold)); width: 0; transition: width 1s cubic-bezier(0.16,1,0.3,1); }
+
+    /* ── INTEELT & VERWANTSCHAP ── */
+    .genetics-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;
+    }
+    .genetics-card {
+      background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px; padding: 1.125rem 1.25rem;
+    }
+    .genetics-label { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.32); margin-bottom: 0.4rem; }
+    .genetics-value { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; color: var(--gold-light); line-height: 1; }
+    .genetics-unit { font-size: 0.8rem; font-family: 'Source Sans 3', sans-serif; color: rgba(255,255,255,0.35); margin-top: 0.2rem; }
+    .genetics-bar-wrap { margin-top: 0.75rem; }
+    .genetics-bar-track { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.07); overflow: hidden; }
+    .genetics-bar-fill { height: 100%; border-radius: 2px; width: 0; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
+    .genetics-bar-fill.inteelt { background: linear-gradient(90deg, #0079BC, #A49466); }
+    .genetics-bar-fill.verwant  { background: linear-gradient(90deg, #A49466, #C4B48A); }
+
+    .genetics-note {
+      font-size: 0.8rem; line-height: 1.65; color: rgba(255,255,255,0.38); font-style: italic;
+      padding: 0.875rem 1rem;
+      background: rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.05); border-radius: 5px;
+    }
+
+    /* ── NAKOMELINGEN ── */
+    .nakomelingen-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px; overflow: hidden; margin-bottom: 1.25rem;
+    }
+    .nak-cell {
+      padding: 1.25rem; background: rgba(255,255,255,0.02);
+      display: flex; flex-direction: column; align-items: center; gap: 0.3rem; text-align: center;
+    }
+    .nak-num { font-family: 'Cormorant Garamond', serif; font-size: 2.5rem; font-weight: 600; color: var(--gold-light); line-height: 1; }
+    .nak-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.32); }
+
+    .nakomelingen-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .nak-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 5px;
+    }
+    .nak-item-left { display: flex; flex-direction: column; gap: 0.15rem; }
+    .nak-item-naam { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-weight: 600; color: var(--white); }
+    .nak-item-meta { font-size: 0.7rem; color: rgba(255,255,255,0.35); }
+    .nak-item-badge {
+      font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      padding: 0.2rem 0.55rem; border-radius: 100px;
+      background: rgba(164,148,102,0.12); border: 1px solid rgba(164,148,102,0.25); color: var(--gold-light);
+    }
+
+    /* ── STAMBOOM ── */
+    .ped-wrap { width: 100%; overflow-x: auto; }
+    .ped-svg { display: block; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    /* ── MATCH CTA PANEL (sidebar) ── */
+    .match-cta-panel {
+      background: linear-gradient(135deg, rgba(0,61,110,0.55) 0%, rgba(0,46,84,0.8) 100%);
+      border: 1px solid rgba(0,121,188,0.2);
+      border-radius: 8px; padding: 1.75rem; position: relative; overflow: hidden;
+    }
+    .match-cta-panel::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--royal), transparent);
+    }
+    .match-cta-eyebrow {
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(0,121,188,0.8); margin-bottom: 0.625rem;
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .match-cta-panel h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 0.625rem; line-height: 1.25; }
+    .match-cta-panel h3 em { font-style: italic; font-weight: 600; color: var(--gold-light); }
+    .match-cta-panel p { font-size: 0.8rem; line-height: 1.65; color: rgba(255,255,255,0.4); margin-bottom: 1.125rem; }
+
+    .mare-select-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.35); margin-bottom: 0.5rem; }
+    .mare-select-input {
+      width: 100%; padding: 0.7rem 2rem 0.7rem 0.875rem;
+      background: rgba(0,0,0,0.25); border: 1px solid rgba(164,148,102,0.2);
+      border-radius: var(--radius); color: var(--white);
+      font-family: 'Source Sans 3', sans-serif; font-size: 0.85rem;
+      outline: none; cursor: pointer; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(164,148,102,0.5)' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 0.75rem center;
+      margin-bottom: 0.875rem;
+      transition: border-color 0.2s;
+    }
+    .mare-select-input option { background: #001a30; }
+    .mare-select-input:focus { border-color: rgba(164,148,102,0.45); }
+
+    .match-score-preview {
+      display: none; align-items: center; gap: 1rem;
+      padding: 0.875rem 1rem;
+      background: rgba(164,148,102,0.07); border: 1px solid rgba(164,148,102,0.18);
+      border-radius: 5px; margin-bottom: 0.875rem;
+    }
+    .match-score-preview.visible { display: flex; }
+    .match-score-num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; color: var(--gold-light); line-height: 1; }
+    .match-score-detail { flex: 1; }
+    .match-score-label { font-size: 0.63rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+    .match-score-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.08); overflow: hidden; margin-top: 0.4rem; }
+    .match-score-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--royal), var(--gold)); transition: width 0.8s cubic-bezier(0.16,1,0.3,1); width: 0; }
+
+    .btn-match-full {
+      display: flex; align-items: center; justify-content: center; gap: 0.7rem;
+      width: 100%; padding: 1rem;
+      background: var(--gold); color: var(--navy);
+      font-family: 'Source Sans 3', sans-serif; font-size: 0.82rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      border: none; border-radius: var(--radius); cursor: pointer;
+      box-shadow: 0 4px 20px rgba(164,148,102,0.3);
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    }
+    .btn-match-full:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(164,148,102,0.4); }
+    .btn-match-full:active { transform: translateY(0); }
+
+    /* ── QUICK STATS ── */
+    .quick-stats {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 6px; overflow: hidden;
+    }
+    .qstat {
+      background: rgba(255,255,255,0.02); padding: 1rem 1.125rem;
+      display: flex; flex-direction: column; gap: 0.25rem;
+    }
+    .qstat-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.3); }
+    .qstat-value { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 600; color: var(--gold-light); line-height: 1; }
+    .qstat-sub { font-size: 0.7rem; color: rgba(255,255,255,0.3); }
+
+    /* ── LOADING ── */
+    #loadingScreen {
+      position: fixed; inset: 0; z-index: 999; background: var(--bg);
+      display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 1rem;
+    }
+    #loadingScreen img { height: 40px; filter: brightness(0) invert(1); opacity: 0.7; }
+    .load-spinner {
+      width: 20px; height: 20px; border: 2px solid rgba(164,148,102,0.15);
+      border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ANIMATIONS ── */
+    .fade-in { opacity: 0; transform: translateY(16px); animation: fadeUp 0.5s ease forwards; }
+    .fade-in-1 { animation-delay: 0.04s; }
+    .fade-in-2 { animation-delay: 0.1s; }
+    .fade-in-3 { animation-delay: 0.18s; }
+    .fade-in-4 { animation-delay: 0.26s; }
+    @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) {
+      .page-body { grid-template-columns: 1fr; }
+      .sidebar { flex-direction: row; flex-wrap: wrap; }
+      .sidebar > * { flex: 1; min-width: 280px; }
+    }
+    @media (max-width: 768px) {
+      nav { padding: 0 1.25rem; }
+      .hero { height: 360px; }
+      .hero-content { padding: 1.5rem 1.25rem; flex-direction: column; align-items: flex-start; }
+      .hero-back { left: 1.25rem; }
+      .hero-cta { align-items: flex-start; }
+      .page-body { padding: 1.5rem 1.25rem 3rem; }
+      .info-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loadingScreen">
+  <img src="brand_assets/kfps-logo.webp" alt="KFPS" />
+  <div class="load-spinner" id="loadSpinner"></div>
+  <p id="loadError" style="display:none;font-size:0.8rem;color:rgba(255,255,255,0.4);margin-top:0.5rem;">
+    Verbinding mislukt — <a href="index.html" style="color:var(--gold-light);">terug naar inloggen</a>
+  </p>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a href="index.html" class="nav-logo"><img src="brand_assets/kfps-logo.webp" alt="KFPS" /></a>
+    <ul class="nav-links">
+      <li><a href="dashboard.html"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="1" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="1" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="8" y="8" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>Dashboard</a></li>
+      <li><a href="merries.html"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M1 13c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Mijn Merries</a></li>
+      <li><a href="hengsten.html" class="active"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1l1.5 3.5H12l-2.5 2 1 3.5L7 8l-3.5 2 1-3.5L2 4.5h3.5L7 1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>Hengsten</a></li>
+      <li><a href="#"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M8.5 8.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>Match Zoeken</a></li>
+    </ul>
+  </div>
+  <div class="nav-right">
+    <div class="nav-user-badge">
+      <div class="nav-avatar" id="navAvatar">?</div>
+      <span class="nav-user-email" id="navEmail">Laden…</span>
+    </div>
+    <button class="nav-logout-btn" id="logoutBtn">Uitloggen</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero" id="heroSection">
+  <img class="hero-img" id="heroImg" src="https://placehold.co/1440x480/002040/A49466?text=Hengst" alt="" />
+  <div class="hero-gradient"></div>
+  <a class="hero-back" href="hengsten.html">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Terug naar Hengsten
+  </a>
+  <div class="hero-content">
+    <div class="hero-meta">
+      <div class="hero-predicaat" id="heroPredicaat">Kroon</div>
+      <h1 class="hero-name" id="heroName"><em>Fabe</em> 489</h1>
+      <div class="hero-stamboek" id="heroStamboek">KFPS 489 · Goedgekeurd 2016</div>
+    </div>
+    <div class="hero-cta">
+      <div class="match-dropdown-wrap" id="matchDropdownWrap">
+        <button class="btn-match-primary" id="matchBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M7.5 7.5C9 6 15 6 16.5 7.5M7.5 16.5C9 18 15 18 16.5 16.5"/><circle cx="12" cy="12" r="9"/></svg>
+          Match met mijn Merrie
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="mare-dropdown" id="mareDropdown">
+          <div class="dropdown-label">Kies een merrie</div>
+          <div id="dropdownItems"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="page-body">
+
+  <!-- LEFT COLUMN -->
+  <div class="left-col">
+
+    <!-- BASISGEGEVENS -->
+    <div class="panel fade-in fade-in-1">
+      <div class="panel-head"><h2>Basis <em>gegevens</em></h2></div>
+      <div class="panel-body">
+        <div class="info-grid" id="basisGrid">
+          <!-- filled by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- KFPS SCORES -->
+    <div class="panel fade-in fade-in-2">
+      <div class="panel-head"><h2>KFPS <em>Scores</em></h2></div>
+      <div class="panel-body">
+        <div class="score-overall">
+          <div class="score-overall-num" id="scoreOverallNum">—</div>
+          <div class="score-overall-detail">
+            <div class="score-overall-label">Totaalscore</div>
+            <div class="score-overall-bar"><div class="score-overall-fill" id="scoreOverallBar"></div></div>
+            <div class="score-stars" id="scoreStars"></div>
+          </div>
+        </div>
+        <div class="scores-tabs">
+          <button class="score-tab active" data-tab="exterieur">Exterieur</button>
+          <button class="score-tab" data-tab="sport">Sport</button>
+          <button class="score-tab" data-tab="lineair">Lineair</button>
+        </div>
+        <div class="scores-list" id="scoresList"></div>
+      </div>
+    </div>
+
+    <!-- INTEELT & VERWANTSCHAP -->
+    <div class="panel fade-in fade-in-3">
+      <div class="panel-head"><h2>Inteelt & <em>Verwantschap</em></h2></div>
+      <div class="panel-body">
+        <div class="genetics-grid">
+          <div class="genetics-card">
+            <div class="genetics-label">Inteeltcoëfficiënt</div>
+            <div class="genetics-value" id="inteeltVal">—</div>
+            <div class="genetics-unit">% homozygositeit</div>
+            <div class="genetics-bar-wrap"><div class="genetics-bar-track"><div class="genetics-bar-fill inteelt" id="inteeltBar"></div></div></div>
+          </div>
+          <div class="genetics-card">
+            <div class="genetics-label">Gem. verwantschap</div>
+            <div class="genetics-value" id="verwantVal">—</div>
+            <div class="genetics-unit">% met populatie</div>
+            <div class="genetics-bar-wrap"><div class="genetics-bar-track"><div class="genetics-bar-fill verwant" id="verwantBar"></div></div></div>
+          </div>
+        </div>
+        <div class="genetics-note" id="geneticsNote"></div>
+      </div>
+    </div>
+
+    <!-- NAKOMELINGEN -->
+    <div class="panel fade-in fade-in-3">
+      <div class="panel-head"><h2>Nako<em>melingen</em></h2></div>
+      <div class="panel-body">
+        <div class="nakomelingen-stats" id="nakStats"></div>
+        <div class="nakomelingen-list" id="nakList"></div>
+      </div>
+    </div>
+
+    <!-- STAMBOOM -->
+    <div class="panel fade-in fade-in-4">
+      <div class="panel-head"><h2>Stamboom <em>— 3 Generaties</em></h2></div>
+      <div class="pedigree-tree">
+        <div class="ped-wrap"><svg class="ped-svg" id="pedSvg"></svg></div>
+      </div>
+    </div>
+
+  </div><!-- /left -->
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- MATCH CTA -->
+    <div class="match-cta-panel">
+      <div class="match-cta-eyebrow">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><circle cx="5" cy="5" r="4" stroke="currentColor" stroke-width="1.2"/><path d="M3 5h4M5 3v4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Matchanalyse
+      </div>
+      <h3>Match met <em>uw Merrie</em></h3>
+      <p>Selecteer een merrie en bekijk direct de genetische compatibiliteit en verwachte fokwaarden.</p>
+      <div class="mare-select-label">Selecteer merrie</div>
+      <select class="mare-select-input" id="sidebarMareSelect">
+        <option value="">— Kies uw merrie —</option>
+      </select>
+      <div class="match-score-preview" id="matchScorePreview">
+        <div class="match-score-num" id="matchScoreNum">—</div>
+        <div class="match-score-detail">
+          <div class="match-score-label">Compatibiliteitsscore</div>
+          <div class="match-score-bar"><div class="match-score-fill" id="matchScoreFill"></div></div>
+        </div>
+      </div>
+      <button class="btn-match-full" id="sidebarMatchBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Volledige Analyse Starten
+      </button>
+    </div>
+
+    <!-- SNEL OVERZICHT -->
+    <div class="panel">
+      <div class="panel-head"><h2>Snel <em>overzicht</em></h2></div>
+      <div class="panel-body" style="padding:0;">
+        <div class="quick-stats" id="quickStats"></div>
+      </div>
+    </div>
+
+  </div><!-- /sidebar -->
+
+</div><!-- /page-body -->
+
+<!-- SUPABASE -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+var SUPABASE_URL  = 'https://uiqnlivjhqcxvgjzugcn.supabase.co';
+var SUPABASE_ANON = 'sb_publishable_qUthop3fXE2jhgvkt_YX9Q_nnFN-ZgU';
+var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// ── DEMO DATA ──────────────────────────────────────────────────────────────
+var demoStallions = [
+  { id:1,  naam:'Alwin fan de Stjelp',    nr:'KFPS 524',  jaar:2016, predicaat:'Kroon',     stokmaat:165, dekgeld:950,  eigenaar:'Stal van Dijkstra', fokker:'G. Boersma', goedgekeurdJaar:2020,
+    inteelt:2.3, verwantschap:4.1,
+    scores: { totaal:88, exterieur:[ {label:'Hoofd & Hals',v:8.5}, {label:'Romp',v:8.0}, {label:'Benen',v:7.8}, {label:'Gangwerk',v:8.2} ], sport:[ {label:'Dressuur',v:7.9}, {label:'Stap',v:8.1}, {label:'Draf',v:8.4}, {label:'Galop',v:7.6} ], lineair:[ {label:'Lengte',v:7.0}, {label:'Diepte borst',v:8.2}, {label:'Spronggewricht',v:7.5}, {label:'Hoefstand',v:8.0} ] },
+    nakomelingen: { totaal:48, goedgekeurdeZoons:3, predicaatMerries:12, lijst:[ {naam:"Alrich fan Wâldhiem", jaar:2021, geslacht:'H', predicaat:'Goedgekeurd'}, {naam:"Alise fan de Stjelp", jaar:2020, geslacht:'M', predicaat:'Ster'}, {naam:"Aldert 555", jaar:2022, geslacht:'H', predicaat:'Goedgekeurd'} ] },
+    pedigree: { vader:{naam:'Tsjalling 480',nr:'KFPS 480'}, moeder:{naam:'Wynona fan \'t Hooge',nr:'FPZV 21345'}, ov_vader_vader:{naam:'Nanning 420',nr:'KFPS 420'}, ov_vader_moeder:{naam:'Yke fan \'t Heidezand',nr:'FPZV 18900'}, ov_moeder_vader:{naam:'Mintse 384',nr:'KFPS 384'}, ov_moeder_moeder:{naam:'Roza van Ter Ley',nr:'FPZV 17001'}, ovov:[ {naam:'Sape 352',nr:'KFPS 352'}, {naam:'Marga',nr:''}, {naam:'Hearke 350',nr:'KFPS 350'}, {naam:'Baukje',nr:''}, {naam:'Jildert 341',nr:'KFPS 341'}, {naam:'Tjitske',nr:''}, {naam:'Ritske 202',nr:'KFPS 202'}, {naam:'Dieuwke',nr:''} ] },
+    foto:'https://placehold.co/1440x480/002040/A49466?text=Alwin'
+  },
+  { id:5,  naam:'Fabe 489',               nr:'KFPS 489',  jaar:2013, predicaat:'Kroon',     stokmaat:171, dekgeld:1450, eigenaar:'Stoeterij De Wâlden', fokker:'H. Feenstra', goedgekeurdJaar:2016,
+    inteelt:1.8, verwantschap:3.7,
+    scores: { totaal:95, exterieur:[ {label:'Hoofd & Hals',v:9.2}, {label:'Romp',v:9.0}, {label:'Benen',v:8.8}, {label:'Gangwerk',v:9.5} ], sport:[ {label:'Dressuur',v:9.1}, {label:'Stap',v:8.9}, {label:'Draf',v:9.3}, {label:'Galop',v:9.0} ], lineair:[ {label:'Lengte',v:8.5}, {label:'Diepte borst',v:9.0}, {label:'Spronggewricht',v:8.7}, {label:'Hoefstand',v:9.2} ] },
+    nakomelingen: { totaal:124, goedgekeurdeZoons:9, predicaatMerries:41, lijst:[ {naam:"Fabrizio 532", jaar:2018, geslacht:'H', predicaat:'Goedgekeurd'}, {naam:"Fabienne fan Tinga", jaar:2017, geslacht:'M', predicaat:'Kroon'}, {naam:"Fabe Jr. 548", jaar:2020, geslacht:'H', predicaat:'Goedgekeurd'} ] },
+    pedigree: { vader:{naam:'Leffert 420',nr:'KFPS 420'}, moeder:{naam:'Hiske fan Sealân',nr:'FPZV 20112'}, ov_vader_vader:{naam:'Ritske 202',nr:'KFPS 202'}, ov_vader_moeder:{naam:'Wietske fan \'t Heide',nr:'FPZV 15330'}, ov_moeder_vader:{naam:'Nanning 358',nr:'KFPS 358'}, ov_moeder_moeder:{naam:'Rinkje fan Bûtenpost',nr:'FPZV 14002'}, ovov:[ {naam:'Sape 352',nr:'KFPS 352'}, {naam:'Aukje',nr:''}, {naam:'Hearke 350',nr:'KFPS 350'}, {naam:'Maaike',nr:''}, {naam:'Jildert 341',nr:'KFPS 341'}, {naam:'Sjoukje',nr:''}, {naam:'Mintse 302',nr:'KFPS 302'}, {naam:'Baukje',nr:''} ] },
+    foto:'https://placehold.co/1440x480/002040/A49466?text=Fabe'
+  }
+];
+
+var demoMares = [
+  { id:1, naam:"Wynona fan 't Hooge", jaar:2019, stamboek:'518234', predicaat:'Model',    matchScore:86 },
+  { id:2, naam:'Roza van Dijkstra',   jaar:2021, stamboek:'521890', predicaat:'Ster',     matchScore:90 },
+  { id:3, naam:'Elske van de Hoeve',  jaar:2018, stamboek:'509771', predicaat:'Kroon',    matchScore:79 },
+  { id:4, naam:'Silke Jacobsdochter', jaar:2020, stamboek:'516204', predicaat:'Ster',     matchScore:83 }
+];
+
+var currentHengst = null;
+var currentScoreTab = 'exterieur';
+
+// ── AUTH GUARD ─────────────────────────────────────────────────────────────
+if (window.location.search.includes('preview=1')) {
+  setTimeout(function() { initPage({ email: 'preview@kfps.nl' }); }, 0);
+} else {
+  sb.auth.getSession().then(function(ref) {
+    var s = ref.data.session;
+    if (s) { initPage(s.user); }
+    else { window.location.replace('index.html'); }
+  }).catch(function() { window.location.replace('index.html'); });
+
+  sb.auth.onAuthStateChange(function(event) {
+    if (event === 'SIGNED_OUT') window.location.replace('index.html');
+  });
+
+  document.getElementById('logoutBtn').addEventListener('click', function() {
+    sb.auth.signOut();
+  });
+}
+
+setTimeout(function() {
+  var ls = document.getElementById('loadingScreen');
+  if (ls && ls.style.display !== 'none') {
+    document.getElementById('loadSpinner').style.display = 'none';
+    document.getElementById('loadError').style.display = 'block';
+  }
+}, 6000);
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+function initPage(user) {
+  document.getElementById('loadingScreen').style.display = 'none';
+  var em = user.email || '';
+  document.getElementById('navAvatar').textContent = em.charAt(0).toUpperCase();
+  document.getElementById('navEmail').textContent  = em;
+
+  var params = new URLSearchParams(window.location.search);
+  var id = parseInt(params.get('id') || '5', 10);
+  currentHengst = demoStallions.find(function(s) { return s.id === id; }) || demoStallions[1];
+
+  renderHengst(currentHengst);
+  buildMareDropdowns();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function renderHengst(h) {
+  document.title = h.naam + ' — KFPS Platform';
+
+  var img = document.getElementById('heroImg');
+  img.src = h.foto;
+  img.onload = function() { img.classList.add('loaded'); };
+
+  var nameParts = h.naam.split(' ');
+  document.getElementById('heroName').innerHTML = '<em>' + nameParts[0] + '</em> ' + nameParts.slice(1).join(' ');
+  document.getElementById('heroPredicaat').textContent = h.predicaat;
+  document.getElementById('heroStamboek').textContent = h.nr + ' · Goedgekeurd ' + h.goedgekeurdJaar;
+
+  renderBasisGegevens(h);
+  renderScores(h);
+  renderGenetics(h);
+  renderNakomelingen(h);
+  renderPedigree(h);
+  renderQuickStats(h);
+
+  setTimeout(function() {
+    animateBars();
+  }, 200);
+}
+
+function renderBasisGegevens(h) {
+  var age = 2024 - h.jaar;
+  var cells = [
+    { label:'Geboortejaar',  value: h.jaar },
+    { label:'Leeftijd',      value: age + ' jaar' },
+    { label:'Stokmaat',      value: h.stokmaat + ' cm' },
+    { label:'Predicaat',     value: h.predicaat },
+    { label:'Dekgeld',       value: '€' + h.dekgeld.toLocaleString('nl-NL'), cls:'gold' },
+    { label:'KFPS Nr.',      value: h.nr },
+    { label:'Eigenaar',      value: h.eigenaar, small:true },
+    { label:'Fokker',        value: h.fokker, small:true },
+    { label:'Goedgekeurd',   value: h.goedgekeurdJaar }
+  ];
+  document.getElementById('basisGrid').innerHTML = cells.map(function(c) {
+    return '<div class="info-cell">' +
+      '<div class="info-label">' + c.label + '</div>' +
+      '<div class="info-value' + (c.small ? ' small' : '') + (c.cls ? ' ' + c.cls : '') + '">' + c.value + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderScores(h) {
+  var tot = h.scores.totaal;
+  document.getElementById('scoreOverallNum').textContent = tot;
+  document.getElementById('scoreOverallBar').setAttribute('data-width', tot);
+
+  var stars = '';
+  var filled = Math.round(tot / 20);
+  for (var i = 1; i <= 5; i++) {
+    stars += '<span class="score-star' + (i <= filled ? ' filled' : '') + '">★</span>';
+  }
+  document.getElementById('scoreStars').innerHTML = stars;
+
+  renderScoreTab(h, currentScoreTab);
+
+  document.querySelectorAll('.score-tab').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      currentScoreTab = this.getAttribute('data-tab');
+      document.querySelectorAll('.score-tab').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      renderScoreTab(h, currentScoreTab);
+      setTimeout(animateBars, 100);
+    });
+  });
+}
+
+function renderScoreTab(h, tab) {
+  var items = h.scores[tab];
+  document.getElementById('scoresList').innerHTML = items.map(function(item) {
+    var pct = (item.v / 10) * 100;
+    return '<div class="score-row">' +
+      '<div class="score-row-head">' +
+        '<span class="score-row-label">' + item.label + '</span>' +
+        '<span class="score-row-value">' + item.v.toFixed(1) + '<span>/10</span></span>' +
+      '</div>' +
+      '<div class="score-bar-track"><div class="score-bar-fill" data-width="' + pct + '"></div></div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderGenetics(h) {
+  document.getElementById('inteeltVal').textContent = h.inteelt.toFixed(1) + '%';
+  document.getElementById('verwantVal').textContent = h.verwantschap.toFixed(1) + '%';
+  document.getElementById('inteeltBar').setAttribute('data-width', (h.inteelt / 10) * 100);
+  document.getElementById('verwantBar').setAttribute('data-width', (h.verwantschap / 10) * 100);
+
+  var risk = h.inteelt < 2 ? 'laag' : h.inteelt < 4 ? 'matig' : 'hoog';
+  document.getElementById('geneticsNote').textContent =
+    'De inteeltcoëfficiënt van ' + h.naam + ' is ' + h.inteelt.toFixed(1) + '% — dit wordt als ' + risk + ' beschouwd binnen de KFPS-populatie. ' +
+    'Gemiddelde verwantschap met de huidige populatie bedraagt ' + h.verwantschap.toFixed(1) + '%. ' +
+    'Bij koppeling met een verwante merrie is extra aandacht voor genetische diversiteit aan te raden.';
+}
+
+function renderNakomelingen(h) {
+  var n = h.nakomelingen;
+  document.getElementById('nakStats').innerHTML =
+    '<div class="nak-cell"><div class="nak-num">' + n.totaal + '</div><div class="nak-label">Nakomelingen</div></div>' +
+    '<div class="nak-cell"><div class="nak-num">' + n.goedgekeurdeZoons + '</div><div class="nak-label">Goedgekeurde zoons</div></div>' +
+    '<div class="nak-cell"><div class="nak-num">' + n.predicaatMerries + '</div><div class="nak-label">Predicaat merries</div></div>';
+
+  document.getElementById('nakList').innerHTML = n.lijst.map(function(k) {
+    return '<div class="nak-item">' +
+      '<div class="nak-item-left">' +
+        '<div class="nak-item-naam">' + k.naam + '</div>' +
+        '<div class="nak-item-meta">' + k.jaar + ' · ' + (k.geslacht === 'H' ? 'Hengst' : 'Merrie') + '</div>' +
+      '</div>' +
+      '<div class="nak-item-badge">' + k.predicaat + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderQuickStats(h) {
+  var age = 2024 - h.jaar;
+  var stats = [
+    { label:'Leeftijd',    value: age + ' jr', sub: h.jaar },
+    { label:'Stokmaat',   value: h.stokmaat + ' cm', sub: '' },
+    { label:'Dekgeld',    value: '€' + h.dekgeld.toLocaleString('nl-NL'), sub: 'per dekking' },
+    { label:'Nakomelingen', value: h.nakomelingen.totaal, sub: 'geregistreerd' },
+    { label:'Goedgekeurd', value: h.goedgekeurdJaar, sub: '' },
+    { label:'Score',      value: h.scores.totaal + '/100', sub: h.predicaat }
+  ];
+  document.getElementById('quickStats').innerHTML = stats.map(function(s) {
+    return '<div class="qstat">' +
+      '<div class="qstat-label">' + s.label + '</div>' +
+      '<div class="qstat-value">' + s.value + '</div>' +
+      (s.sub ? '<div class="qstat-sub">' + s.sub + '</div>' : '') +
+    '</div>';
+  }).join('');
+}
+
+// ── PEDIGREE SVG ──────────────────────────────────────────────────────────
+function renderPedigree(h) {
+  var p = h.pedigree;
+  var nodeW = 115, nodeH = 58, colGap = 36;
+  var cols = 4;
+  var totalW = cols * nodeW + (cols - 1) * colGap + 20;
+
+  var col0Nodes = [{ naam: h.naam, nr: h.nr, cls: 'mare' }];
+  var col1Nodes = [
+    { naam: p.vader.naam,  nr: p.vader.nr,  cls: 'sire' },
+    { naam: p.moeder.naam, nr: p.moeder.nr, cls: 'dam'  }
+  ];
+  var col2Nodes = [
+    { naam: p.ov_vader_vader.naam,  nr: p.ov_vader_vader.nr,  cls: 'sire' },
+    { naam: p.ov_vader_moeder.naam, nr: p.ov_vader_moeder.nr, cls: 'dam'  },
+    { naam: p.ov_moeder_vader.naam, nr: p.ov_moeder_vader.nr, cls: 'sire' },
+    { naam: p.ov_moeder_moeder.naam,nr: p.ov_moeder_moeder.nr,cls: 'dam'  }
+  ];
+  var col3Nodes = p.ovov.map(function(n, i) {
+    return { naam: n.naam, nr: n.nr, cls: i % 2 === 0 ? 'sire' : 'dam' };
+  });
+
+  var colCounts = [1, 2, 4, 8];
+  var totalH = Math.max(colCounts[3]) * (nodeH + 8) + 40;
+  var svgH = totalH;
+
+  function yCenters(count) {
+    var result = [];
+    var step = totalH / count;
+    for (var i = 0; i < count; i++) result.push(step * i + step / 2);
+    return result;
+  }
+
+  var xPos = [10, 10 + nodeW + colGap, 10 + 2*(nodeW+colGap), 10 + 3*(nodeW+colGap)];
+  var ys0 = yCenters(1), ys1 = yCenters(2), ys2 = yCenters(4), ys3 = yCenters(8);
+
+  var svg = '<svg class="ped-svg" width="' + totalW + '" height="' + svgH + '" viewBox="0 0 ' + totalW + ' ' + svgH + '" xmlns="http://www.w3.org/2000/svg">';
+
+  function sireColor(cls) { return cls === 'sire' ? 'rgba(0,121,188,0.55)' : cls === 'dam' ? 'rgba(164,148,102,0.55)' : 'rgba(164,148,102,0.55)'; }
+
+  function drawNode(x, y, node) {
+    var accentColor = sireColor(node.cls);
+    var bg = node.cls === 'mare' ? 'rgba(164,148,102,0.08)' : 'rgba(255,255,255,0.025)';
+    var border = node.cls === 'mare' ? 'rgba(164,148,102,0.3)' : 'rgba(255,255,255,0.08)';
+    var top = y - nodeH/2;
+    var nameLines = splitName(node.naam, 14);
+    var nameY1 = top + (nameLines.length > 1 ? 20 : 25);
+
+    var rect = '<rect x="' + x + '" y="' + top + '" width="' + nodeW + '" height="' + nodeH + '" rx="4" fill="' + bg + '" stroke="' + border + '" stroke-width="1"/>';
+    var accent = '<rect x="' + x + '" y="' + top + '" width="3" height="' + nodeH + '" rx="1.5" fill="' + accentColor + '"/>';
+    var name1 = '<text x="' + (x+10) + '" y="' + nameY1 + '" fill="rgba(255,255,255,0.92)" font-family="\'Cormorant Garamond\', serif" font-size="11" font-weight="600">' + escSvg(nameLines[0]) + '</text>';
+    var name2 = nameLines[1] ? '<text x="' + (x+10) + '" y="' + (nameY1+14) + '" fill="rgba(255,255,255,0.92)" font-family="\'Cormorant Garamond\', serif" font-size="11" font-weight="600">' + escSvg(nameLines[1]) + '</text>' : '';
+    var nr = node.nr ? '<text x="' + (x+10) + '" y="' + (top+nodeH-9) + '" fill="rgba(255,255,255,0.3)" font-family="\'Source Sans 3\', sans-serif" font-size="9">' + escSvg(node.nr) + '</text>' : '';
+    return rect + accent + name1 + name2 + nr;
+  }
+
+  function drawConnector(x1, y1, x2, y2, cls) {
+    var mid = x1 + colGap/2;
+    var color = cls === 'sire' ? 'rgba(0,121,188,0.35)' : 'rgba(164,148,102,0.35)';
+    return '<path d="M' + (x1+nodeW) + ' ' + y1 + ' C ' + mid + ' ' + y1 + ' ' + mid + ' ' + y2 + ' ' + x2 + ' ' + y2 + '" fill="none" stroke="' + color + '" stroke-width="1.2"/>';
+  }
+
+  function splitName(s, maxLen) {
+    if (s.length <= maxLen) return [s];
+    var idx = s.lastIndexOf(' ', maxLen);
+    if (idx < 1) idx = maxLen;
+    return [s.slice(0, idx), s.slice(idx+1)];
+  }
+
+  function escSvg(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // Draw connectors first (behind nodes)
+  var lines = '';
+  // col0 → col1
+  lines += drawConnector(xPos[0], ys0[0], xPos[1], ys1[0], 'sire');
+  lines += drawConnector(xPos[0], ys0[0], xPos[1], ys1[1], 'dam');
+  // col1 → col2
+  for (var i = 0; i < 2; i++) {
+    lines += drawConnector(xPos[1], ys1[i], xPos[2], ys2[i*2],   col1Nodes[i].cls === 'sire' ? 'sire' : 'dam');
+    lines += drawConnector(xPos[1], ys1[i], xPos[2], ys2[i*2+1], 'dam');
+  }
+  // col2 → col3
+  for (var j = 0; j < 4; j++) {
+    lines += drawConnector(xPos[2], ys2[j], xPos[3], ys3[j*2],   col2Nodes[j].cls === 'sire' ? 'sire' : 'dam');
+    lines += drawConnector(xPos[2], ys2[j], xPos[3], ys3[j*2+1], 'dam');
+  }
+
+  svg += lines;
+
+  // Draw nodes
+  col0Nodes.forEach(function(n, i) { svg += drawNode(xPos[0], ys0[i], n); });
+  col1Nodes.forEach(function(n, i) { svg += drawNode(xPos[1], ys1[i], n); });
+  col2Nodes.forEach(function(n, i) { svg += drawNode(xPos[2], ys2[i], n); });
+  col3Nodes.forEach(function(n, i) { svg += drawNode(xPos[3], ys3[i], n); });
+
+  svg += '</svg>';
+  document.getElementById('pedSvg').outerHTML = svg;
+}
+
+// ── MARE DROPDOWNS ────────────────────────────────────────────────────────
+function buildMareDropdowns() {
+  // Hero dropdown items
+  var itemsHtml = demoMares.map(function(m) {
+    return '<button class="dropdown-item" data-id="' + m.id + '" onclick="selectMare(' + m.id + ')">' +
+      '<div class="dropdown-item-avatar">' + m.naam.charAt(0) + '</div>' +
+      '<div class="dropdown-item-info">' +
+        '<div class="dropdown-item-naam">' + m.naam + '</div>' +
+        '<div class="dropdown-item-meta">' + m.predicaat + ' · ' + m.jaar + '</div>' +
+      '</div>' +
+      '<div class="dropdown-item-score">' + m.matchScore + '</div>' +
+    '</button>';
+  }).join('');
+  document.getElementById('dropdownItems').innerHTML = itemsHtml;
+
+  // Sidebar select
+  var opts = demoMares.map(function(m) {
+    return '<option value="' + m.id + '">' + m.naam + ' (' + m.predicaat + ')</option>';
+  }).join('');
+  document.getElementById('sidebarMareSelect').innerHTML += opts;
+}
+
+function selectMare(id) {
+  var mare = demoMares.find(function(m) { return m.id === id; });
+  if (!mare) return;
+  document.getElementById('mareDropdown').classList.remove('open');
+
+  var preview = document.getElementById('matchScorePreview');
+  document.getElementById('matchScoreNum').textContent = mare.matchScore;
+  document.getElementById('matchScoreFill').style.width = mare.matchScore + '%';
+  preview.classList.add('visible');
+
+  document.getElementById('sidebarMareSelect').value = id;
+}
+
+// Hero dropdown toggle
+document.getElementById('matchBtn').addEventListener('click', function(e) {
+  e.stopPropagation();
+  document.getElementById('mareDropdown').classList.toggle('open');
+});
+document.addEventListener('click', function() {
+  document.getElementById('mareDropdown').classList.remove('open');
+});
+
+// Sidebar select change
+document.getElementById('sidebarMareSelect').addEventListener('change', function() {
+  var id = parseInt(this.value, 10);
+  if (id) selectMare(id);
+});
+
+// ── ANIMATE BARS ──────────────────────────────────────────────────────────
+function animateBars() {
+  document.querySelectorAll('[data-width]').forEach(function(el) {
+    el.style.width = el.getAttribute('data-width') + '%';
+  });
+}
+</script>
+</body>
+</html>
