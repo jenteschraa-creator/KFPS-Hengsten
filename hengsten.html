@@ -316,6 +316,7 @@
     gap: 1.5rem;
   }
 
+  @keyframes spin { to { transform: rotate(360deg); } }
   @keyframes cardIn {
     from { opacity: 0; transform: translateY(18px); }
     to   { opacity: 1; transform: translateY(0); }
@@ -709,26 +710,12 @@
 </main>
 
 <script>
-var demoStallions = [
-  { id:1,  naam:'Alwin fan de Stjelp',    nr:'KFPS 524',  jaar:2016, predicaat:'Kroon',     stokmaat:165, dekgeld:950,  score:88, foto:'https://placehold.co/480x270/002040/A49466?text=Alwin' },
-  { id:2,  naam:'Beart 454',              nr:'KFPS 454',  jaar:2012, predicaat:'Preferent', stokmaat:169, dekgeld:1200, score:92, foto:'https://placehold.co/480x270/002040/A49466?text=Beart' },
-  { id:3,  naam:'Doaitsen fan Tinga',     nr:'KFPS 501',  jaar:2014, predicaat:'Prestatie', stokmaat:162, dekgeld:750,  score:79, foto:'https://placehold.co/480x270/002040/A49466?text=Doaitsen' },
-  { id:4,  naam:'Eros van de Slothoeve',  nr:'KFPS 539',  jaar:2018, predicaat:'Model',     stokmaat:167, dekgeld:600,  score:74, foto:'https://placehold.co/480x270/002040/A49466?text=Eros' },
-  { id:5,  naam:'Fabe 489',               nr:'KFPS 489',  jaar:2013, predicaat:'Kroon',     stokmaat:171, dekgeld:1450, score:95, foto:'https://placehold.co/480x270/002040/A49466?text=Fabe' },
-  { id:6,  naam:'Gjalt 444',              nr:'KFPS 444',  jaar:2011, predicaat:'Preferent', stokmaat:158, dekgeld:1100, score:89, foto:'https://placehold.co/480x270/002040/A49466?text=Gjalt' },
-  { id:7,  naam:'Haitse fan Wâldhiem',    nr:'KFPS 512',  jaar:2015, predicaat:'Kroon',     stokmaat:163, dekgeld:875,  score:83, foto:'https://placehold.co/480x270/002040/A49466?text=Haitse' },
-  { id:8,  naam:'Ids 457',                nr:'KFPS 457',  jaar:2012, predicaat:'Prestatie', stokmaat:168, dekgeld:500,  score:71, foto:'https://placehold.co/480x270/002040/A49466?text=Ids' },
-  { id:9,  naam:'Jasper fan Terwisscha',  nr:'KFPS 531',  jaar:2017, predicaat:'Model',     stokmaat:160, dekgeld:700,  score:77, foto:'https://placehold.co/480x270/002040/A49466?text=Jasper' },
-  { id:10, naam:'Leffert 468',            nr:'KFPS 468',  jaar:2013, predicaat:'Preferent', stokmaat:166, dekgeld:1350, score:91, foto:'https://placehold.co/480x270/002040/A49466?text=Leffert' },
-  { id:11, naam:'Maurus van Stal Dijkstra',nr:'KFPS 547', jaar:2019, predicaat:'Kroon',     stokmaat:164, dekgeld:950,  score:86, foto:'https://placehold.co/480x270/002040/A49466?text=Maurus' },
-  { id:12, naam:'Nanning 471',            nr:'KFPS 471',  jaar:2013, predicaat:'Preferent', stokmaat:173, dekgeld:1600, score:94, foto:'https://placehold.co/480x270/002040/A49466?text=Nanning' },
-  { id:13, naam:'Olrik fan \'t Heidezand', nr:'KFPS 502', jaar:2014, predicaat:'Prestatie', stokmaat:161, dekgeld:650,  score:76, foto:'https://placehold.co/480x270/002040/A49466?text=Olrik' },
-  { id:14, naam:'Piter 490',              nr:'KFPS 490',  jaar:2013, predicaat:'Kroon',     stokmaat:170, dekgeld:1150, score:90, foto:'https://placehold.co/480x270/002040/A49466?text=Piter' },
-  { id:15, naam:'Quirijn van Wolfsberg',  nr:'KFPS 555',  jaar:2020, predicaat:'Model',     stokmaat:162, dekgeld:800,  score:81, foto:'https://placehold.co/480x270/002040/A49466?text=Quirijn' },
-];
+var allStallions = [];
+var isLoading    = false;
+var loadError    = null;
 
-var sortField = 'score';
-var sortDir = 'desc';
+var sortField = 'naam';
+var sortDir   = 'asc';
 
 function getAge(jaar) { return 2024 - jaar; }
 
@@ -761,7 +748,7 @@ function getFiltered() {
   var fl  = document.getElementById('filterLeeftijd').value;
   var fd  = document.getElementById('filterDekgeld').value;
 
-  var result = demoStallions.filter(function(s) {
+  var result = allStallions.filter(function(s) {
     if (q  && !(s.naam.toLowerCase().includes(q) || s.nr.toLowerCase().includes(q))) return false;
     if (fp  && s.predicaat !== fp)          return false;
     if (fsm && stokmaatRange(s.stokmaat) !== fsm) return false;
@@ -788,9 +775,32 @@ function nameHTML(naam) {
 }
 
 function renderGrid() {
-  var list = getFiltered();
   var grid = document.getElementById('stallionGrid');
-  document.getElementById('resultCount').textContent = list.length + ' hengst' + (list.length !== 1 ? 'en' : '');
+  var resultCount = document.getElementById('resultCount');
+
+  if (isLoading) {
+    resultCount.textContent = '';
+    grid.innerHTML = '<div class="empty-state" style="opacity:0.7"><div style="animation:spin 1.2s linear infinite;display:inline-block"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div><p style="margin-top:1rem;color:var(--text-muted)">Hengsten laden…</p></div>';
+    return;
+  }
+
+  if (loadError) {
+    resultCount.textContent = '';
+    grid.innerHTML = '<div class="empty-state"><div style="color:#e05555"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="empty-title" style="margin-top:0.75rem">Fout bij laden</div><p class="empty-text">' + loadError + '</p></div>';
+    return;
+  }
+
+  var list = getFiltered();
+  resultCount.textContent = list.length + ' hengst' + (list.length !== 1 ? 'en' : '');
+
+  if (!allStallions.length) {
+    grid.innerHTML = '<div class="empty-state">' +
+      '<div class="empty-icon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>' +
+      '<div class="empty-title">Geen hengsten beschikbaar</div>' +
+      '<p class="empty-text">Er zijn nog geen hengsten in de database.</p>' +
+      '</div>';
+    return;
+  }
 
   if (!list.length) {
     grid.innerHTML = '<div class="empty-state">' +
@@ -803,29 +813,36 @@ function renderGrid() {
 
   grid.innerHTML = list.map(function(s, i) {
     var delay = (i * 0.05).toFixed(2) + 's';
+    var predicaatBadge = s.predicaat ? '<span class="badge-predicaat">' + s.predicaat + '</span>' : '';
+    var scoreBadge = s.score !== null
+      ? '<div class="badge-score"><span>' + s.score + '</span><small>score</small></div>'
+      : '';
+    var stokmaatTag = s.stokmaat
+      ? '<span class="tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 17l4-8 4 4 4-6 4 10"/></svg>' + s.stokmaat + ' cm</span>'
+      : '';
+    var scoreBar = s.score !== null
+      ? '<div class="score-bar-wrap"><div class="score-bar-label"><span>Match potentieel</span><span>' + s.score + '/100</span></div><div class="score-bar-track"><div class="score-bar-fill" data-score="' + s.score + '"></div></div></div>'
+      : '';
+    var dekgeldRow = s.dekgeld !== null
+      ? '<div class="dekgeld-row"><span class="dekgeld-label">Dekgeld</span><span class="dekgeld-value">€' + Number(s.dekgeld).toLocaleString('nl-NL') + '</span></div>'
+      : '';
     return '<div class="stallion-card" style="animation-delay:' + delay + '">' +
       '<div class="card-photo">' +
         '<img src="' + s.foto + '" alt="' + s.naam + '" loading="lazy" />' +
         '<div class="card-photo-overlay"></div>' +
         '<div class="card-photo-color"></div>' +
-        '<span class="badge-predicaat">' + s.predicaat + '</span>' +
-        '<div class="badge-score"><span>' + s.score + '</span><small>score</small></div>' +
+        predicaatBadge +
+        scoreBadge +
       '</div>' +
       '<div class="card-body">' +
         '<div class="card-name">' + nameHTML(s.naam) + '</div>' +
         '<div class="card-tags">' +
           '<span class="tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>' + s.jaar + ' · ' + getAge(s.jaar) + ' jr</span>' +
-          '<span class="tag"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 17l4-8 4 4 4-6 4 10"/></svg>' + s.stokmaat + ' cm</span>' +
+          stokmaatTag +
           '<span class="tag">' + s.nr + '</span>' +
         '</div>' +
-        '<div class="score-bar-wrap">' +
-          '<div class="score-bar-label"><span>Match potentieel</span><span>' + s.score + '/100</span></div>' +
-          '<div class="score-bar-track"><div class="score-bar-fill" data-score="' + s.score + '"></div></div>' +
-        '</div>' +
-        '<div class="dekgeld-row">' +
-          '<span class="dekgeld-label">Dekgeld</span>' +
-          '<span class="dekgeld-value">€' + s.dekgeld.toLocaleString('nl-NL') + '</span>' +
-        '</div>' +
+        scoreBar +
+        dekgeldRow +
       '</div>' +
       '<div class="card-footer">' +
         '<a class="btn-profiel" href="hengst-detail.html?id=' + s.id + '">Profiel</a>' +
@@ -894,12 +911,51 @@ var SUPABASE_URL = 'https://uiqnlivjhqcxvgjzugcn.supabase.co';
 var SUPABASE_KEY = 'sb_publishable_qUthop3fXE2jhgvkt_YX9Q_nnFN-ZgU';
 var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+async function loadStallions() {
+  isLoading = true;
+  loadError = null;
+  renderGrid();
+
+  var res = await sb.from('stallions')
+    .select('*, stallion_scores(value)')
+    .eq('available', true)
+    .order('name');
+
+  isLoading = false;
+
+  if (res.error) {
+    loadError = res.error.message || 'Fout bij laden';
+    renderGrid();
+    return;
+  }
+
+  allStallions = (res.data || []).map(function(s) {
+    var vals = (s.stallion_scores || []).map(function(sc) { return sc.value; });
+    var avg = vals.length
+      ? Math.round(vals.reduce(function(a, b) { return a + b; }, 0) / vals.length)
+      : null;
+    return {
+      id:        s.id,
+      naam:      s.name,
+      nr:        s.stamboeknummer || '—',
+      jaar:      s.birth_year || new Date().getFullYear(),
+      predicaat: (s.predicates && s.predicates[0]) || null,
+      stokmaat:  s.height_cm || null,
+      dekgeld:   s.stud_fee || null,
+      score:     avg,
+      foto:      s.photo_url || 'https://placehold.co/480x270/002040/A49466?text=' + encodeURIComponent((s.name || '').split(' ')[0])
+    };
+  });
+
+  renderGrid();
+}
+
 function initPage(user) {
   var displayName = user.email || '';
   document.getElementById('navAvatar').textContent = displayName.charAt(0).toUpperCase();
   document.getElementById('navEmail').textContent = displayName;
   setSortUI();
-  renderGrid();
+  loadStallions();
 }
 
 if (window.location.search.includes('preview=1')) {

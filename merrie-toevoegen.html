@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Merrie Toevoegen — KFPS Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Source+Sans+3:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="js/mare-config.js"></script>
+<style>
+:root {
+  --navy: #002E54;
+  --royal: #0079BC;
+  --gold: #A49466;
+  --gold-light: #C4B48A;
+  --bg: #001525;
+  --surface: #002040;
+  --surface2: #002a50;
+  --surface3: #003060;
+  --text: #E8E0D0;
+  --text-muted: #8899aa;
+  --border: rgba(164,148,102,0.18);
+  --border-focus: rgba(164,148,102,0.5);
+  --shadow: 0 4px 24px rgba(0,0,0,0.45), 0 1px 4px rgba(0,0,0,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.93rem;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.55;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 3rem; height: 64px;
+  background: rgba(0,21,37,0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(164,148,102,0.15);
+}
+.nav-left { display: flex; align-items: center; gap: 2.5rem; }
+.nav-logo img { height: 36px; filter: brightness(0) invert(1); opacity: 0.9; transition: opacity 0.2s; }
+.nav-logo img:hover { opacity: 0.7; }
+.nav-links { display: flex; align-items: center; gap: 0.25rem; list-style: none; }
+.nav-links a {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.45rem 0.875rem; color: rgba(255,255,255,0.55);
+  text-decoration: none; font-size: 0.82rem; font-weight: 500; letter-spacing: 0.05em;
+  border-radius: 4px; transition: background 0.15s, color 0.15s;
+}
+.nav-links a:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); }
+.nav-links a.active { background: rgba(164,148,102,0.12); color: var(--gold-light); }
+.nav-right { display: flex; align-items: center; gap: 1rem; }
+.nav-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg,rgba(164,148,102,0.3),rgba(0,121,188,0.3));
+  border: 1px solid rgba(164,148,102,0.35);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif; font-size: 0.9rem; font-weight: 600;
+  color: var(--gold-light);
+}
+.nav-email { font-size: 0.8rem; color: rgba(255,255,255,0.5); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-logout {
+  padding: 0.4rem 0.9rem; background: transparent;
+  border: 1px solid rgba(164,148,102,0.25); color: rgba(164,148,102,0.7);
+  font-family: 'Source Sans 3',sans-serif; font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; border-radius: 4px; cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.nav-logout:hover { border-color: rgba(164,148,102,0.5); color: var(--gold-light); background: rgba(164,148,102,0.06); }
+
+/* ── MAIN ── */
+main {
+  position: relative; z-index: 1;
+  max-width: 860px;
+  margin: 64px auto 0;
+  padding: 2.5rem 2rem 6rem;
+}
+
+/* ── PAGE HEADER ── */
+.page-header {
+  margin-bottom: 2.5rem;
+}
+.breadcrumb {
+  display: flex; align-items: center; gap: 0.5rem;
+  font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem;
+  letter-spacing: 0.04em;
+}
+.breadcrumb a { color: var(--gold); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb svg { opacity: 0.4; }
+.page-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.4rem; font-weight: 400; line-height: 1.1;
+  color: var(--text);
+}
+.page-title em { font-style: italic; color: var(--gold); }
+.page-subtitle { font-size: 0.88rem; color: var(--text-muted); margin-top: 0.4rem; }
+
+/* ── FORM SECTION ── */
+.form-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.25rem;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+}
+.section-header:hover { background: rgba(255,255,255,0.03); }
+
+.section-header-left { display: flex; align-items: center; gap: 0.75rem; }
+.section-icon {
+  width: 28px; height: 28px; border-radius: 6px;
+  background: rgba(164,148,102,0.1); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold); flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem; font-weight: 600; color: var(--text);
+  letter-spacing: 0.01em;
+}
+.section-badge {
+  font-size: 0.72rem; color: var(--gold); background: rgba(164,148,102,0.1);
+  border: 1px solid rgba(164,148,102,0.2); border-radius: 3px;
+  padding: 0.1rem 0.45rem; letter-spacing: 0.05em;
+}
+.section-required .section-badge { background: rgba(0,121,188,0.1); border-color: rgba(0,121,188,0.2); color: rgba(164,212,255,0.8); }
+.section-chevron { color: var(--text-muted); transition: transform 0.25s; flex-shrink: 0; }
+.form-section.open .section-chevron { transform: rotate(180deg); }
+
+.section-body {
+  display: none;
+  padding: 0 1.25rem 1.25rem;
+  border-top: 1px solid var(--border);
+}
+.form-section.open .section-body { display: block; }
+.form-section.always-open .section-body { display: block; }
+.form-section.always-open .section-header { cursor: default; }
+.form-section.always-open .section-chevron { display: none; }
+.form-section.always-open .section-header:hover { background: transparent; }
+
+/* ── FORM FIELDS ── */
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.field-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+.field-full { grid-column: 1 / -1; }
+
+.field { display: flex; flex-direction: column; gap: 0.35rem; }
+.field label {
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase;
+  color: var(--gold); opacity: 0.85;
+}
+.field label .optional { font-weight: 400; opacity: 0.6; text-transform: none; letter-spacing: 0; }
+
+.field input, .field select, .field textarea {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(164,148,102,0.2);
+  border-radius: 5px;
+  color: var(--text);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.55rem 0.75rem;
+  transition: border-color 0.2s, background 0.2s;
+  outline: none;
+  width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--border-focus);
+  background: rgba(0,0,0,0.3);
+}
+.field input.error, .field select.error, .field textarea.error {
+  border-color: rgba(220,80,80,0.5);
+}
+.field input::placeholder, .field textarea::placeholder { color: var(--text-muted); opacity: 0.6; }
+.field select option { background: #002040; }
+.field textarea { resize: vertical; min-height: 90px; }
+
+/* ── PREDICATEN ── */
+.predicate-chips {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+.pred-chip {
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  border: 1px solid rgba(164,148,102,0.25);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.82rem; font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+.pred-chip:hover { border-color: rgba(164,148,102,0.5); color: var(--text); }
+.pred-chip.selected {
+  background: rgba(164,148,102,0.15);
+  border-color: var(--gold);
+  color: var(--gold-light);
+}
+
+/* ── FOTO UPLOAD ── */
+.photo-upload-zone {
+  border: 1.5px dashed rgba(164,148,102,0.25);
+  border-radius: 6px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.photo-upload-zone:hover { border-color: rgba(164,148,102,0.5); background: rgba(164,148,102,0.04); }
+.photo-upload-zone.has-preview { padding: 0; border-style: solid; }
+.photo-upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 2; }
+.photo-preview { width: 100%; height: 160px; object-fit: cover; border-radius: 5px; display: block; }
+.photo-placeholder { color: var(--text-muted); pointer-events: none; }
+.photo-placeholder svg { opacity: 0.4; margin-bottom: 0.5rem; }
+.photo-placeholder p { font-size: 0.83rem; margin-top: 0.25rem; }
+.photo-placeholder small { font-size: 0.75rem; opacity: 0.6; }
+
+/* ── SCORE ROWS ── */
+.score-header-row {
+  display: grid;
+  grid-template-columns: 1.4fr 80px 1.2fr 110px;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 0 0.25rem;
+  border-bottom: 1px solid rgba(164,148,102,0.1);
+  margin-bottom: 0.25rem;
+}
+.score-header-row span {
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+.score-row {
+  display: grid;
+  grid-template-columns: 1.4fr 80px 1.2fr 110px;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+}
+.score-row:last-child { border-bottom: none; }
+.score-row .cat-label {
+  font-size: 0.87rem; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.score-row input[type=number], .score-row select, .score-row input[type=date] {
+  background: rgba(0,0,0,0.2);
+  border: 1px solid rgba(164,148,102,0.18);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.85rem;
+  padding: 0.38rem 0.5rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.score-row input:focus, .score-row select:focus { border-color: var(--border-focus); }
+.score-row select option { background: #002040; }
+.score-hint { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; }
+
+/* ── AFSTAMMING ── */
+.pedigree-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* ── SUBMIT BAR ── */
+.submit-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  background: rgba(0,21,37,0.97);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(164,148,102,0.15);
+  padding: 1rem 2rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.submit-bar-left { display: flex; align-items: center; gap: 0.75rem; }
+.submit-status { font-size: 0.85rem; color: var(--text-muted); }
+.submit-status.error { color: #e07070; }
+.submit-status.success { color: #6ecb8a; }
+.btn-cancel {
+  padding: 0.55rem 1.25rem;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.55);
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.85rem; font-weight: 500;
+  border-radius: 5px; cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none; display: inline-flex; align-items: center;
+}
+.btn-cancel:hover { border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.8); }
+.btn-save {
+  padding: 0.6rem 1.75rem;
+  background: linear-gradient(135deg, rgba(164,148,102,0.9), rgba(196,180,138,0.8));
+  border: none;
+  color: #001525;
+  font-family: 'Source Sans 3', sans-serif;
+  font-size: 0.88rem; font-weight: 600;
+  border-radius: 5px; cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: 0.03em;
+}
+.btn-save:hover { opacity: 0.9; }
+.btn-save:active { transform: scale(0.98); }
+.btn-save:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ── SECTION DIVIDER ── */
+.section-body hr { border: none; border-top: 1px solid rgba(164,148,102,0.1); margin: 1rem 0; }
+
+@media (max-width: 600px) {
+  main { padding: 1.5rem 1rem 6rem; }
+  nav { padding: 0 1rem; }
+  .nav-links { display: none; }
+  .field-grid { grid-template-columns: 1fr; }
+  .pedigree-grid { grid-template-columns: 1fr; }
+  .score-header-row, .score-row { grid-template-columns: 1fr 60px 1fr; }
+  .score-header-row span:last-child, .score-row input[type=date] { display: none; }
+  .page-title { font-size: 1.8rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a class="nav-logo" href="dashboard.html">
+      <img src="brand_assets/kfps_logo.png" alt="KFPS" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\'font-family:Cormorant Garamond,serif;font-size:1.3rem;font-weight:600;color:#C4B48A;letter-spacing:0.05em\'>KFPS</span>'" />
+    </a>
+    <ul class="nav-links">
+      <li><a href="dashboard.html">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Dashboard</a></li>
+      <li><a href="merries.html" class="active">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>Mijn Merries</a></li>
+      <li><a href="hengsten.html">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17l5-5-5-5"/><path d="M12 17h8"/></svg>Hengsten</a></li>
+      <li><a href="#">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2v-4M9 21H5a2 2 0 01-2-2v-4m0 0h18"/></svg>Match Zoeken</a></li>
+    </ul>
+  </div>
+  <div class="nav-right">
+    <div style="display:flex;align-items:center;gap:0.625rem;">
+      <div class="nav-avatar" id="navAvatar">?</div>
+      <span class="nav-email" id="navEmail"></span>
+    </div>
+    <button class="nav-logout" id="btnSignOut">Uitloggen</button>
+  </div>
+</nav>
+
+<main>
+  <div class="page-header">
+    <div class="breadcrumb">
+      <a href="merries.html">Mijn Merries</a>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      <span id="breadcrumbCurrent">Merrie Toevoegen</span>
+    </div>
+    <h1 class="page-title" id="pageTitle">Merrie <em>Registreren</em></h1>
+    <p class="page-subtitle" id="pageSubtitle">Vul minimaal de naam in. Alle overige velden zijn optioneel en later aan te vullen.</p>
+  </div>
+
+  <!-- SECTIE A: BASISGEGEVENS -->
+  <div class="form-section always-open" id="secBasis">
+    <div class="section-header">
+      <div class="section-header-left">
+        <div class="section-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        </div>
+        <span class="section-title">Basisgegevens</span>
+        <span class="section-badge section-required">Verplicht</span>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="field-grid">
+        <div class="field field-full">
+          <label>Naam <span style="color:#e07070">*</span></label>
+          <input type="text" id="fNaam" placeholder="bijv. Wynona fan 't Hooge" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label>Geboortejaar <span class="optional">(optioneel)</span></label>
+          <input type="number" id="fJaar" placeholder="bijv. 2018" min="1970" max="2030" />
+        </div>
+        <div class="field">
+          <label>Stamboeknummer <span class="optional">(optioneel)</span></label>
+          <input type="text" id="fStamboek" placeholder="bijv. 518234" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label>Kleur / Bijzonderheden <span class="optional">(optioneel)</span></label>
+          <input type="text" id="fKleur" placeholder="bijv. Zwart, witte bles" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label>Stokmaat in cm <span class="optional">(optioneel)</span></label>
+          <input type="number" id="fStokmaat" placeholder="bijv. 162" min="100" max="220" step="0.5" />
+        </div>
+      </div>
+
+      <div style="margin-top:1.25rem;">
+        <label style="font-size:0.72rem;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:var(--gold);opacity:0.85;display:block;margin-bottom:0.5rem;">
+          Predicaten <span style="font-weight:400;opacity:0.6;text-transform:none;letter-spacing:0;">(meerdere mogelijk)</span>
+        </label>
+        <div class="predicate-chips" id="predicateChips"></div>
+      </div>
+
+      <div style="margin-top:1.25rem;">
+        <label style="font-size:0.72rem;font-weight:600;letter-spacing:0.09em;text-transform:uppercase;color:var(--gold);opacity:0.85;display:block;margin-bottom:0.5rem;">
+          Foto <span style="font-weight:400;opacity:0.6;text-transform:none;letter-spacing:0;">(optioneel — max 5 MB, JPG/PNG/WEBP)</span>
+        </label>
+        <div class="photo-upload-zone" id="photoZone">
+          <input type="file" id="fFoto" accept="image/jpeg,image/png,image/webp" />
+          <div class="photo-placeholder" id="photoPlaceholder">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="display:block;margin:0 auto"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <p>Klik of sleep een foto hierheen</p>
+            <small>JPG, PNG of WEBP · max 5 MB</small>
+          </div>
+          <img id="photoPreview" class="photo-preview" style="display:none" alt="Voorvertoning" />
+        </div>
+        <p id="photoError" style="color:#e07070;font-size:0.78rem;margin-top:0.4rem;display:none;"></p>
+        <p id="photoStorageNote" style="color:var(--text-muted);font-size:0.76rem;margin-top:0.4rem;display:none;">
+          ⚠️ Foto-upload vereist de Supabase Storage bucket <code style="background:rgba(255,255,255,0.06);padding:0 0.3rem;border-radius:3px;">mare-photos</code>. Zie de instructies bovenaan dit scherm.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTIE B: AFSTAMMING -->
+  <div class="form-section" id="secAfstamming">
+    <div class="section-header" onclick="toggleSection('secAfstamming')">
+      <div class="section-header-left">
+        <div class="section-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        </div>
+        <span class="section-title">Afstamming</span>
+        <span class="section-badge">Optioneel</span>
+      </div>
+      <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="pedigree-grid">
+        <div class="field">
+          <label>Vader (Sire)</label>
+          <input type="text" id="fVader" placeholder="bijv. Tsjalling 502" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label>Moeder (Dam)</label>
+          <input type="text" id="fMoeder" placeholder="Naam moeder" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label>Moedervader (Damsire)</label>
+          <input type="text" id="fMoedervader" placeholder="bijv. Mintse 384" autocomplete="off" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTIE C: EXTERIEUR SCORES -->
+  <div class="form-section" id="secExterieur">
+    <div class="section-header" onclick="toggleSection('secExterieur')">
+      <div class="section-header-left">
+        <div class="section-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l4-8 4 4 4-6 4 10"/></svg>
+        </div>
+        <span class="section-title">Exterieur Scores</span>
+        <span class="section-badge">0 – 100</span>
+      </div>
+      <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="score-header-row">
+        <span>Categorie</span><span>Waarde</span><span>Bron</span><span>Datum</span>
+      </div>
+      <div id="scoreRowsExterieur"></div>
+      <p class="score-hint">Laat leeg als de score niet bekend is — lege rijen worden niet opgeslagen.</p>
+    </div>
+  </div>
+
+  <!-- SECTIE D: SPORT AANLEG -->
+  <div class="form-section" id="secSport">
+    <div class="section-header" onclick="toggleSection('secSport')">
+      <div class="section-header-left">
+        <div class="section-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+        </div>
+        <span class="section-title">Sport Aanleg</span>
+        <span class="section-badge">0 – 100</span>
+      </div>
+      <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="score-header-row">
+        <span>Categorie</span><span>Waarde</span><span>Bron</span><span>Datum</span>
+      </div>
+      <div id="scoreRowsSport"></div>
+      <p class="score-hint">Laat leeg als de score niet bekend is.</p>
+    </div>
+  </div>
+
+  <!-- SECTIE E: LINEAIRE SCORES -->
+  <div class="form-section" id="secLineair">
+    <div class="section-header" onclick="toggleSection('secLineair')">
+      <div class="section-header-left">
+        <div class="section-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
+        </div>
+        <span class="section-title">Lineaire Scores</span>
+        <span class="section-badge">1 – 9</span>
+      </div>
+      <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="score-header-row">
+        <span>Categorie</span><span>Waarde</span><span>Bron</span><span>Datum</span>
+      </div>
+      <div id="scoreRowsLineair"></div>
+      <p class="score-hint">Lineaire scores lopen van 1 (negatief extreme) tot 9 (positief extreme), 5 = gemiddeld.</p>
+    </div>
+  </div>
+
+  <!-- SECTIE F: NOTITIES -->
+  <div class="form-section" id="secNotities">
+    <div class="section-header" onclick="toggleSection('secNotities')">
+      <div class="section-header-left">
+        <div class="section-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        </div>
+        <span class="section-title">Notities</span>
+        <span class="section-badge">Optioneel</span>
+      </div>
+      <svg class="section-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="section-body">
+      <div class="field" style="margin-top:1rem;">
+        <label>Vrije notitie</label>
+        <textarea id="fNotities" placeholder="Bijzonderheden, fokdoelen, gezondheidsnotities…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT: DELETE SECTION (alleen zichtbaar in edit mode) -->
+  <div id="editDeleteSection" style="display:none;margin-top:0.5rem;">
+    <div style="background:rgba(200,50,50,0.06);border:1px solid rgba(200,50,50,0.18);border-radius:8px;padding:1.25rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+        <div>
+          <div style="font-size:0.85rem;font-weight:600;color:rgba(255,120,120,0.85);margin-bottom:0.2rem;">Merrie verwijderen</div>
+          <div style="font-size:0.8rem;color:var(--text-muted);">Verwijdert de merrie inclusief alle bijbehorende scores. Kan niet ongedaan worden gemaakt.</div>
+        </div>
+        <button id="btnEditDelete" style="padding:0.5rem 1.1rem;background:transparent;border:1px solid rgba(200,50,50,0.35);color:rgba(255,100,100,0.8);font-family:'Source Sans 3',sans-serif;font-size:0.82rem;font-weight:600;border-radius:5px;cursor:pointer;white-space:nowrap;transition:background 0.15s;" onmouseover="this.style.background='rgba(200,50,50,0.1)'" onmouseout="this.style.background='transparent'">
+          Merrie Verwijderen
+        </button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- SUBMIT BAR -->
+<div class="submit-bar">
+  <div class="submit-bar-left">
+    <a href="merries.html" class="btn-cancel">Annuleren</a>
+    <span class="submit-status" id="submitStatus"></span>
+  </div>
+  <button class="btn-save" id="btnSave">Merrie Opslaan</button>
+</div>
+
+<!-- CONFIRM DELETE OVERLAY (edit mode) -->
+<div id="editConfirmOverlay" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;">
+  <div style="background:#002a50;border:1px solid rgba(164,148,102,0.25);border-radius:10px;padding:2rem;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.6);">
+    <h3 style="font-family:'Cormorant Garamond',serif;font-size:1.3rem;color:var(--text);">Merrie verwijderen?</h3>
+    <p style="font-size:0.87rem;color:var(--text-muted);margin-top:0.5rem;line-height:1.6;">Alle gegevens en scores worden permanent verwijderd. Dit kan niet ongedaan worden gemaakt.</p>
+    <div style="display:flex;gap:0.75rem;margin-top:1.5rem;">
+      <button id="btnEditDeleteCancel" style="flex:1;padding:0.6rem;background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-family:'Source Sans 3',sans-serif;font-size:0.85rem;border-radius:5px;cursor:pointer;">Annuleren</button>
+      <button id="btnEditDeleteConfirm" style="flex:1;padding:0.6rem;background:rgba(200,50,50,0.8);border:none;color:#fff;font-family:'Source Sans 3',sans-serif;font-size:0.85rem;font-weight:600;border-radius:5px;cursor:pointer;">Verwijderen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var SUPABASE_URL = 'https://uiqnlivjhqcxvgjzugcn.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_qUthop3fXE2jhgvkt_YX9Q_nnFN-ZgU';
+var sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+var currentUser = null;
+var selectedPredicates = [];
+var editId = null; // set when editing an existing mare
+var existingPhotoUrl = null;
+
+// ── EDIT MODE DETECTION ───────────────────────────────────────
+(function detectEditMode() {
+  var params = new URLSearchParams(window.location.search);
+  editId = params.get('edit') || params.get('id') || null;
+  if (editId) {
+    // UI-aanpassingen altijd, ook in preview mode
+    document.getElementById('pageTitle').innerHTML = 'Merrie <em>Bewerken</em>';
+    document.getElementById('pageSubtitle').textContent = 'Pas de gegevens aan en sla op. Lege score-velden worden verwijderd.';
+    document.getElementById('btnSave').textContent = 'Wijzigingen Opslaan';
+    document.getElementById('breadcrumbCurrent').textContent = 'Merrie Bewerken';
+    document.getElementById('editDeleteSection').style.display = 'block';
+  }
+})();
+
+// ── PREDICATEN CHIPS ──────────────────────────────────────────
+function buildPredicateChips() {
+  var container = document.getElementById('predicateChips');
+  MARE_CONFIG.PREDICATES.forEach(function(pred) {
+    var chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'pred-chip';
+    chip.textContent = pred;
+    chip.addEventListener('click', function() {
+      var idx = selectedPredicates.indexOf(pred);
+      if (idx === -1) {
+        selectedPredicates.push(pred);
+        chip.classList.add('selected');
+      } else {
+        selectedPredicates.splice(idx, 1);
+        chip.classList.remove('selected');
+      }
+    });
+    container.appendChild(chip);
+  });
+}
+
+// ── SCORE ROWS ────────────────────────────────────────────────
+function buildScoreRows(scoreType, containerId) {
+  var cfg = MARE_CONFIG.SCORE_CATEGORIES[scoreType];
+  var container = document.getElementById(containerId);
+  var today = new Date().toISOString().split('T')[0];
+
+  cfg.categories.forEach(function(cat) {
+    var key = scoreType + '_' + cat.replace(/\s+/g, '_').toLowerCase();
+    var row = document.createElement('div');
+    row.className = 'score-row';
+    row.innerHTML =
+      '<span class="cat-label">' + cat + '</span>' +
+      '<input type="number" id="' + key + '_val" min="' + cfg.min + '" max="' + cfg.max + '" step="1" placeholder="—" data-type="' + scoreType + '" data-cat="' + cat + '" />' +
+      '<select id="' + key + '_src">' +
+        MARE_CONFIG.SCORE_SOURCES.map(function(s) {
+          return '<option value="' + s.value + '">' + s.label + '</option>';
+        }).join('') +
+      '</select>' +
+      '<input type="date" id="' + key + '_dat" value="' + today + '" />';
+    container.appendChild(row);
+  });
+}
+
+// ── FOTO PREVIEW ──────────────────────────────────────────────
+document.getElementById('fFoto').addEventListener('change', function() {
+  var file = this.files[0];
+  if (!file) return;
+  var errEl = document.getElementById('photoError');
+  errEl.style.display = 'none';
+  if (file.size > 5 * 1024 * 1024) {
+    errEl.textContent = 'Foto is te groot (max 5 MB).';
+    errEl.style.display = 'block';
+    this.value = '';
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var preview = document.getElementById('photoPreview');
+    var placeholder = document.getElementById('photoPlaceholder');
+    var zone = document.getElementById('photoZone');
+    preview.src = e.target.result;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+    zone.classList.add('has-preview');
+  };
+  reader.readAsDataURL(file);
+});
+
+// ── COLLAPSIBLE SECTIONS ──────────────────────────────────────
+function toggleSection(id) {
+  var sec = document.getElementById(id);
+  sec.classList.toggle('open');
+}
+
+// ── COLLECT SCORES ────────────────────────────────────────────
+function collectScores(scoreType) {
+  var cfg = MARE_CONFIG.SCORE_CATEGORIES[scoreType];
+  var scores = [];
+  cfg.categories.forEach(function(cat) {
+    var key = scoreType + '_' + cat.replace(/\s+/g, '_').toLowerCase();
+    var valEl = document.getElementById(key + '_val');
+    var srcEl = document.getElementById(key + '_src');
+    var datEl = document.getElementById(key + '_dat');
+    if (!valEl || valEl.value === '') return;
+    var val = parseFloat(valEl.value);
+    if (isNaN(val)) return;
+    if (val < cfg.min || val > cfg.max) {
+      valEl.style.borderColor = 'rgba(220,80,80,0.5)';
+      return;
+    }
+    scores.push({
+      score_type:  scoreType,
+      category:    cat,
+      value:       val,
+      source:      srcEl.value,
+      measured_at: datEl.value || null
+    });
+  });
+  return scores;
+}
+
+// ── PHOTO UPLOAD ──────────────────────────────────────────────
+async function uploadPhoto(userId) {
+  var file = document.getElementById('fFoto').files[0];
+  if (!file) return null;
+  var ext = file.name.split('.').pop().toLowerCase();
+  var path = userId + '/' + Date.now() + '.' + ext;
+  var res = await sb.storage.from('mare-photos').upload(path, file, {
+    cacheControl: '3600', upsert: false
+  });
+  if (res.error) {
+    if (res.error.message && res.error.message.includes('Bucket not found')) {
+      document.getElementById('photoStorageNote').style.display = 'block';
+    }
+    console.warn('Foto upload mislukt:', res.error.message);
+    return null;
+  }
+  var urlRes = sb.storage.from('mare-photos').getPublicUrl(path);
+  return urlRes.data.publicUrl || null;
+}
+
+// ── COLLECT FORM DATA ────────────────────────────────────────
+function collectFormData(photoUrl) {
+  return {
+    name:           document.getElementById('fNaam').value.trim(),
+    birth_year:     parseInt(document.getElementById('fJaar').value) || null,
+    stamboeknummer: document.getElementById('fStamboek').value.trim() || null,
+    color:          document.getElementById('fKleur').value.trim() || null,
+    height_cm:      parseFloat(document.getElementById('fStokmaat').value) || null,
+    sire_name:      document.getElementById('fVader').value.trim() || null,
+    dam_name:       document.getElementById('fMoeder').value.trim() || null,
+    damsire_name:   document.getElementById('fMoedervader').value.trim() || null,
+    predicates:     selectedPredicates.slice(),
+    photo_url:      photoUrl,
+    notes:          document.getElementById('fNotities').value.trim() || null
+  };
+}
+
+// ── SAVE ─────────────────────────────────────────────────────
+document.getElementById('btnSave').addEventListener('click', async function() {
+  var btn = this;
+  var statusEl = document.getElementById('submitStatus');
+
+  // Validatie
+  var naam = document.getElementById('fNaam').value.trim();
+  if (!naam) {
+    document.getElementById('fNaam').classList.add('error');
+    document.getElementById('fNaam').focus();
+    statusEl.textContent = 'Vul een naam in.';
+    statusEl.className = 'submit-status error';
+    return;
+  }
+  document.getElementById('fNaam').classList.remove('error');
+
+  btn.disabled = true;
+  var defaultBtnText = editId ? 'Wijzigingen Opslaan' : 'Merrie Opslaan';
+  btn.textContent = 'Opslaan…';
+  statusEl.textContent = editId ? 'Merrie bijwerken…' : 'Merrie opslaan…';
+  statusEl.className = 'submit-status';
+
+  // Foto uploaden (alleen als er een nieuw bestand gekozen is)
+  var photoUrl = existingPhotoUrl; // bewaar bestaande foto als standaard
+  var hasNewPhoto = document.getElementById('fFoto').files.length > 0;
+  if (hasNewPhoto) {
+    var uploaded = await uploadPhoto(currentUser.id);
+    if (uploaded) photoUrl = uploaded;
+  }
+
+  var formData = collectFormData(photoUrl);
+  var mareId;
+
+  if (editId) {
+    // ── UPDATE bestaande merrie ──────────────────────────────
+    var updateRes = await sb.from('mares')
+      .update(formData)
+      .eq('id', editId)
+      .eq('user_id', currentUser.id);
+
+    if (updateRes.error) {
+      btn.disabled = false;
+      btn.textContent = defaultBtnText;
+      var msg = updateRes.error.message || 'Onbekende fout';
+      if (msg.includes('unique') || msg.includes('duplicate')) {
+        msg = 'Stamboeknummer ' + (formData.stamboeknummer || '') + ' bestaat al in uw registratie.';
+        document.getElementById('fStamboek').classList.add('error');
+      }
+      statusEl.textContent = msg;
+      statusEl.className = 'submit-status error';
+      return;
+    }
+    mareId = editId;
+
+    // Optie A: verwijder alle bestaande scores, dan opnieuw inserten
+    statusEl.textContent = 'Scores bijwerken…';
+    await sb.from('mare_scores').delete().eq('mare_id', mareId);
+
+  } else {
+    // ── INSERT nieuwe merrie ─────────────────────────────────
+    var insertData = Object.assign({ user_id: currentUser.id }, formData);
+    var insertRes = await sb.from('mares').insert(insertData).select('id').single();
+
+    if (insertRes.error) {
+      btn.disabled = false;
+      btn.textContent = defaultBtnText;
+      var msg2 = insertRes.error.message || 'Onbekende fout';
+      if (msg2.includes('unique') || msg2.includes('duplicate')) {
+        msg2 = 'Stamboeknummer ' + (formData.stamboeknummer || '') + ' bestaat al in uw registratie.';
+        document.getElementById('fStamboek').classList.add('error');
+      }
+      statusEl.textContent = msg2;
+      statusEl.className = 'submit-status error';
+      return;
+    }
+    mareId = insertRes.data.id;
+  }
+
+  // Scores inserten (geldt voor zowel nieuw als update)
+  var allScores = [
+    ...collectScores('exterieur'),
+    ...collectScores('sport'),
+    ...collectScores('lineair')
+  ].map(function(s) {
+    return Object.assign({ mare_id: mareId }, s);
+  });
+
+  if (allScores.length > 0) {
+    statusEl.textContent = allScores.length + ' scores opslaan…';
+    var scoreRes = await sb.from('mare_scores').insert(allScores);
+    if (scoreRes.error) {
+      statusEl.textContent = (editId ? 'Bijgewerkt' : 'Opgeslagen') + ', maar scores konden niet worden opgeslagen.';
+      statusEl.className = 'submit-status error';
+      btn.disabled = false;
+      btn.textContent = defaultBtnText;
+      setTimeout(function() { window.location.href = 'merrie-detail.html?id=' + mareId; }, 2500);
+      return;
+    }
+  }
+
+  statusEl.textContent = editId ? 'Bijgewerkt!' : 'Opgeslagen!';
+  statusEl.className = 'submit-status success';
+  setTimeout(function() { window.location.href = 'merrie-detail.html?id=' + mareId; }, 700);
+});
+
+// ── LOAD EXISTING DATA (edit mode) ───────────────────────────
+async function loadExistingMare(id) {
+  document.getElementById('btnSave').disabled = true;
+  document.getElementById('submitStatus').textContent = 'Gegevens laden…';
+  document.getElementById('submitStatus').className = 'submit-status';
+
+  var res = await sb.from('mares')
+    .select('*, mare_scores(*)')
+    .eq('id', id)
+    .eq('user_id', currentUser.id)
+    .single();
+
+  document.getElementById('btnSave').disabled = false;
+  document.getElementById('submitStatus').textContent = '';
+
+  if (res.error || !res.data) {
+    document.getElementById('submitStatus').textContent = 'Merrie niet gevonden.';
+    document.getElementById('submitStatus').className = 'submit-status error';
+    return;
+  }
+
+  var mare = res.data;
+
+  // Basis velden
+  document.getElementById('fNaam').value      = mare.name || '';
+  document.getElementById('fJaar').value      = mare.birth_year || '';
+  document.getElementById('fStamboek').value  = mare.stamboeknummer || '';
+  document.getElementById('fKleur').value     = mare.color || '';
+  document.getElementById('fStokmaat').value  = mare.height_cm || '';
+  document.getElementById('fVader').value     = mare.sire_name || '';
+  document.getElementById('fMoeder').value    = mare.dam_name || '';
+  document.getElementById('fMoedervader').value = mare.damsire_name || '';
+  document.getElementById('fNotities').value  = mare.notes || '';
+
+  // Predicaten — zet selected chips aan
+  selectedPredicates = (mare.predicates || []).slice();
+  document.querySelectorAll('.pred-chip').forEach(function(chip) {
+    if (selectedPredicates.indexOf(chip.textContent) !== -1) {
+      chip.classList.add('selected');
+    }
+  });
+
+  // Foto preview
+  if (mare.photo_url) {
+    existingPhotoUrl = mare.photo_url;
+    var preview = document.getElementById('photoPreview');
+    var placeholder = document.getElementById('photoPlaceholder');
+    var zone = document.getElementById('photoZone');
+    preview.src = mare.photo_url;
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+    zone.classList.add('has-preview');
+  }
+
+  // Open afstamming sectie als er data is
+  if (mare.sire_name || mare.dam_name || mare.damsire_name) {
+    document.getElementById('secAfstamming').classList.add('open');
+  }
+
+  // Scores invullen per categorie
+  var scores = mare.mare_scores || [];
+  scores.forEach(function(score) {
+    var cfg = MARE_CONFIG.SCORE_CATEGORIES[score.score_type];
+    if (!cfg) return;
+    var key = score.score_type + '_' + score.category.replace(/\s+/g, '_').toLowerCase();
+    var valEl = document.getElementById(key + '_val');
+    var srcEl = document.getElementById(key + '_src');
+    var datEl = document.getElementById(key + '_dat');
+    if (valEl) valEl.value = score.value;
+    if (srcEl) srcEl.value = score.source;
+    if (datEl && score.measured_at) datEl.value = score.measured_at;
+    // Open de sectie als er scores in zitten
+    var sectionMap = { exterieur: 'secExterieur', sport: 'secSport', lineair: 'secLineair' };
+    var secEl = document.getElementById(sectionMap[score.score_type]);
+    if (secEl) secEl.classList.add('open');
+  });
+}
+
+// ── DELETE IN EDIT MODE ───────────────────────────────────────
+function showDeleteConfirm() { document.getElementById('editConfirmOverlay').style.display = 'flex'; }
+function hideDeleteConfirm() { document.getElementById('editConfirmOverlay').style.display = 'none'; }
+
+document.getElementById('btnEditDelete').addEventListener('click', showDeleteConfirm);
+document.getElementById('btnEditDeleteCancel').addEventListener('click', hideDeleteConfirm);
+document.getElementById('editConfirmOverlay').addEventListener('click', function(e) {
+  if (e.target === this) hideDeleteConfirm();
+});
+
+document.getElementById('btnEditDeleteConfirm').addEventListener('click', async function() {
+  var btn = this;
+  btn.disabled = true;
+  btn.textContent = 'Verwijderen…';
+  var res = await sb.from('mares').delete().eq('id', editId).eq('user_id', currentUser.id);
+  if (res.error) {
+    btn.disabled = false;
+    btn.textContent = 'Verwijderen';
+    document.getElementById('submitStatus').textContent = 'Fout: ' + res.error.message;
+    document.getElementById('submitStatus').className = 'submit-status error';
+    hideDeleteConfirm();
+    return;
+  }
+  window.location.href = 'merries.html';
+});
+
+// ── AUTH ─────────────────────────────────────────────────────
+function initPage(user) {
+  currentUser = user;
+  document.getElementById('navAvatar').textContent = user.email.charAt(0).toUpperCase();
+  document.getElementById('navEmail').textContent = user.email;
+  buildPredicateChips();
+  buildScoreRows('exterieur', 'scoreRowsExterieur');
+  buildScoreRows('sport', 'scoreRowsSport');
+  buildScoreRows('lineair', 'scoreRowsLineair');
+  // Als edit mode: laad bestaande data NA de UI is opgebouwd
+  if (editId && !user.id.startsWith('00000000')) {
+    loadExistingMare(editId);
+  }
+}
+
+if (window.location.search.includes('preview=1')) {
+  setTimeout(function() { initPage({ email: 'preview@kfps.nl', id: '00000000-0000-0000-0000-000000000000' }); }, 0);
+} else {
+sb.auth.getSession().then(async function(result) {
+  var session = result.data.session;
+  if (!session) { window.location.href = 'index.html'; return; }
+  await sb.from('profiles').upsert({ id: session.user.id }, { onConflict: 'id', ignoreDuplicates: true });
+  initPage(session.user);
+});
+
+sb.auth.onAuthStateChange(function(event) {
+  if (event === 'SIGNED_OUT') window.location.href = 'index.html';
+});
+}
+
+document.getElementById('btnSignOut').addEventListener('click', function() {
+  sb.auth.signOut();
+});
+</script>
+</body>
+</html>

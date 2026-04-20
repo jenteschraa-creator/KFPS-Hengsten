@@ -703,10 +703,10 @@
         <h1>Mijn <em>Merries</em></h1>
         <p class="page-header-sub">Beheer uw fokmerries en bekijk hun beste matchscores.</p>
       </div>
-      <button class="btn-add-mare-primary" id="openAddMare">
+      <a class="btn-add-mare-primary" href="merrie-toevoegen.html">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         Merrie Toevoegen
-      </button>
+      </a>
     </div>
 
     <!-- Filter zone -->
@@ -825,11 +825,16 @@
 
     // ── AUTH GUARD ──────────────────────────────────────────────────
     if (window.location.search.includes('preview=1')) {
-      setTimeout(function() { initPage({ email: 'preview@kfps.nl' }); }, 0);
+      setTimeout(function() { initPage({ email: 'preview@kfps.nl', id: '00000000-0000-0000-0000-000000000000' }); }, 0);
     } else {
-    sb.auth.getSession().then(function(result) {
+    sb.auth.getSession().then(async function(result) {
       var session = result.data.session;
       if (session && session.user) {
+        // Zorg dat er een profiel bestaat (veilig voor gebruikers die vóór de trigger aanmaakten)
+        await sb.from('profiles').upsert(
+          { id: session.user.id },
+          { onConflict: 'id', ignoreDuplicates: true }
+        );
         initPage(session.user);
       } else {
         window.location.replace('index.html');
@@ -857,70 +862,61 @@
       window.location.replace('index.html');
     });
 
-    // ── DEMO DATA ───────────────────────────────────────────────────
-    // Placeholder merries — vervangen door echte DB-data zodra beschikbaar
-    var demoMares = [
-      {
-        id: 1,
-        naam: "Wynona fan 't Hooge",
-        jaar: 2019,
-        stamboek: '518234',
-        predicaat: 'Model',
-        kleur: 'Zwart',
-        bestMatch: 'Tsjalling 502',
-        score: 8.6,
-        foto: 'https://placehold.co/480x360/002040/A49466?text=Wynona'
-      },
-      {
-        id: 2,
-        naam: 'Roza van Dijkstra',
-        jaar: 2021,
-        stamboek: '521890',
-        predicaat: 'Ster',
-        kleur: 'Zwart',
-        bestMatch: 'Rindert 496',
-        score: 9.0,
-        foto: 'https://placehold.co/480x360/002040/A49466?text=Roza'
-      },
-      {
-        id: 3,
-        naam: 'Elske van de Hoeve',
-        jaar: 2018,
-        stamboek: '509771',
-        predicaat: 'Kroon',
-        kleur: 'Zwart, witte bles',
-        bestMatch: 'Mintse 384',
-        score: 7.9,
-        foto: 'https://placehold.co/480x360/002040/A49466?text=Elske'
-      },
-      {
-        id: 4,
-        naam: 'Silke Jacobsdochter',
-        jaar: 2020,
-        stamboek: '516204',
-        predicaat: 'Ster',
-        kleur: 'Zwart',
-        bestMatch: null,
-        score: null,
-        foto: 'https://placehold.co/480x360/002040/A49466?text=Silke'
-      }
-    ];
-
-    // Actieve data (start met demo, later uit DB)
-    var allMares = [];
+    var allMares   = [];
+    var isLoading  = false;
+    var loadError  = null;
+    var currentUser = null;
 
     // ── PAGINA INITIALISEREN ────────────────────────────────────────
     function initPage(user) {
       document.getElementById('loadingScreen').style.display = 'none';
+      currentUser = user;
 
       var emailName   = user.email.split('@')[0];
       var displayName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
       document.getElementById('navAvatar').textContent = displayName.charAt(0).toUpperCase();
       document.getElementById('navEmail').textContent  = user.email;
 
-      // Laad merries (nu demo, straks uit Supabase)
-      allMares = demoMares.slice();
       setSortUI();
+      loadMares(user);
+    }
+
+    async function loadMares(user) {
+      isLoading = true;
+      loadError = null;
+      renderMares();
+
+      var res = await sb.from('mares')
+        .select('*, mare_scores(value)')
+        .eq('user_id', user.id)
+        .order('name');
+
+      isLoading = false;
+
+      if (res.error) {
+        loadError = res.error.message || 'Fout bij laden';
+        renderMares();
+        return;
+      }
+
+      allMares = (res.data || []).map(function(m) {
+        var vals = (m.mare_scores || []).map(function(s) { return s.value; });
+        var avg = vals.length
+          ? Math.round(vals.reduce(function(a, b) { return a + b; }, 0) / vals.length * 10) / 10
+          : null;
+        return {
+          id:        m.id,
+          naam:      m.name,
+          jaar:      m.birth_year || new Date().getFullYear(),
+          stamboek:  m.stamboeknummer || '—',
+          predicaat: (m.predicates && m.predicates[0]) || null,
+          kleur:     m.color || null,
+          bestMatch: null,
+          score:     avg,
+          foto:      m.photo_url || 'https://placehold.co/480x360/002040/A49466?text=' + encodeURIComponent((m.name || '').split(' ')[0])
+        };
+      });
+
       renderMares();
     }
 
@@ -928,6 +924,19 @@
     function renderMares() {
       var grid    = document.getElementById('mareGrid');
       var filterBar = document.getElementById('filterBar');
+
+      if (isLoading) {
+        filterBar.style.display = 'none';
+        grid.innerHTML = '<div class="empty-state" style="opacity:0.7"><div class="empty-icon-wrap" style="animation:spin 1.2s linear infinite;display:inline-block"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg></div><p style="margin-top:1rem;color:var(--text-muted)">Merries laden…</p></div>';
+        return;
+      }
+
+      if (loadError) {
+        filterBar.style.display = 'none';
+        grid.innerHTML = '<div class="empty-state"><div class="empty-icon-wrap" style="color:#e05555"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><h2>Fout bij laden</h2><p style="color:var(--text-muted)">' + loadError + '</p><button class="btn-add-mare-primary" onclick="loadMares(currentUser)" style="margin-top:0.75rem">Opnieuw proberen</button></div>';
+        return;
+      }
+
       var filtered = getFiltered();
 
       // Toon filterbar alleen als er merries zijn
@@ -979,10 +988,10 @@
         '</div>' +
         '<h2>Nog geen <em>merries</em></h2>' +
         '<p>Voeg uw eerste merrie toe om matchscores te berekenen en uw fokprogramma op te starten.</p>' +
-        '<button class="btn-add-mare-primary" onclick="openModal()" style="margin-top:0.5rem;">' +
+        '<a class="btn-add-mare-primary" href="merrie-toevoegen.html" style="margin-top:0.5rem;display:inline-flex;align-items:center;gap:0.5rem;text-decoration:none;">' +
           '<svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 2v10M2 7h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>' +
           'Eerste Merrie Toevoegen' +
-        '</button>' +
+        '</a>' +
       '</div>';
     }
 
@@ -1137,13 +1146,21 @@
       if (e.target === this) closeModal();
     });
 
-    // Opslaan (placeholder — later naar Supabase)
-    document.getElementById('submitAddMare').addEventListener('click', function() {
+    // Opslaan naar Supabase
+    document.getElementById('submitAddMare').addEventListener('click', async function() {
+      var btn       = this;
       var naam      = document.getElementById('fNaam').value.trim();
       var jaar      = parseInt(document.getElementById('fJaar').value, 10);
       var stamboek  = document.getElementById('fStamboek').value.trim();
       var predicaat = document.getElementById('fPredicaat').value;
       var kleur     = document.getElementById('fKleur').value.trim();
+
+      // Wis eerdere foutmarkering
+      ['fNaam','fJaar','fStamboek','fKleur'].forEach(function(id) {
+        document.getElementById(id).style.borderColor = '';
+      });
+      var errEl = document.getElementById('formError');
+      if (errEl) errEl.remove();
 
       if (!naam) {
         document.getElementById('fNaam').focus();
@@ -1151,30 +1168,47 @@
         return;
       }
 
-      // Voeg toe aan lokale lijst (tijdelijk, voor UI-test)
-      var newMare = {
-        id: Date.now(),
-        naam: naam,
-        jaar: jaar || new Date().getFullYear(),
-        stamboek: stamboek || '—',
-        predicaat: predicaat || null,
-        kleur: kleur || null,
-        bestMatch: null,
-        score: null,
-        foto: 'https://placehold.co/480x360/002040/A49466?text=' + encodeURIComponent(naam.split(' ')[0])
+      btn.disabled = true;
+      btn.textContent = 'Opslaan…';
+
+      var insertData = {
+        user_id:        currentUser.id,
+        name:           naam,
+        birth_year:     jaar || null,
+        stamboeknummer: stamboek || null,
+        predicates:     predicaat ? [predicaat] : [],
+        color:          kleur || null
       };
 
-      allMares.unshift(newMare);
+      var res = await sb.from('mares').insert(insertData).select().single();
+
+      btn.disabled = false;
+      btn.textContent = 'Opslaan';
+
+      if (res.error) {
+        var msg = res.error.message || 'Onbekende fout';
+        if (msg.includes('unique') || msg.includes('duplicate')) {
+          msg = 'Stamboeknummer ' + (stamboek || '') + ' bestaat al in uw registratie.';
+          document.getElementById('fStamboek').style.borderColor = 'rgba(220,80,80,0.5)';
+        }
+        var errDiv = document.createElement('p');
+        errDiv.id = 'formError';
+        errDiv.style.cssText = 'color:#e07070;font-size:0.82rem;margin-top:0.5rem;';
+        errDiv.textContent = msg;
+        btn.parentNode.insertBefore(errDiv, btn);
+        return;
+      }
+
       closeModal();
 
       // Reset formulier
       ['fNaam','fJaar','fStamboek','fKleur'].forEach(function(id) {
         document.getElementById(id).value = '';
-        document.getElementById(id).style.borderColor = '';
       });
       document.getElementById('fPredicaat').value = '';
 
-      renderMares();
+      // Herlaad merries uit DB
+      await loadMares(currentUser);
     });
 
     // Enter in naam field → focus jaar
